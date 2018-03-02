@@ -46,8 +46,7 @@ class DamageSystem : public System
     public:
         DamageSystem()
         {
-            required.insert(Position::id);
-            required.insert(Velocity::id);
+            required.insert(Health::id);
         }
         void update(const float dt)
         {
@@ -75,23 +74,97 @@ class RenderSystem : public System
             assert(cm != NULL);
             assert(renderer != NULL);
 
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
             auto &p = cm->getStore<Position>();
 
             for(auto e : entities)
             {
                 auto a = p.getComponent(e);
                 SDL_Rect r;
-                r.x = a->x - 2.5;
-                r.y = a->y - 2.5;
-                r.w = 5;
-                r.h = 5;
+                r.x = a->x - radius;
+                r.y = a->y - radius;
+                r.w = 2 * radius;
+                r.h = 2 * radius;
                 SDL_RenderFillRect(renderer, &r);
             }
         }
         EntityManager *em;
         ComponentManager *cm;
     private:
+        const float radius = 2.5;
         SDL_Renderer *renderer;
+};
+
+
+class RenderPlayerSystem : public System
+{
+    public:
+        RenderPlayerSystem(SDL_Renderer *r)
+        {
+            this->renderer = r;
+            required.insert(Position::id);
+            required.insert(Render::id);
+            required.insert(Inputs::id);
+        }
+        void update(const float dt)
+        {
+            assert(em != NULL);
+            assert(cm != NULL);
+            assert(renderer != NULL);
+
+            SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+
+            auto &p = cm->getStore<Position>();
+
+            for(auto e : entities)
+            {
+                auto a = p.getComponent(e);
+                SDL_Rect r = {a->x - radius, a->y - radius, 2 * radius, 2 * radius};
+                SDL_RenderFillRect(renderer, &r);
+            }
+        }
+        EntityManager *em;
+        ComponentManager *cm;
+    private:
+        const float radius = 5;
+        SDL_Renderer *renderer;
+};
+
+
+class MovementSystem : public System
+{
+    public:
+        MovementSystem()
+        {
+            required.insert(Velocity::id);
+            required.insert(Inputs::id);
+        }
+        void update(const float dt)
+        {
+            assert(em != NULL);
+            assert(cm != NULL);
+
+            auto &v = cm->getStore<Velocity>();
+            auto &i = cm->getStore<Inputs>();
+
+            for(auto e : entities)
+            {
+                auto a = v.getComponent(e);
+                auto b = i.getComponent(e);
+
+                if(b->left == true)       {a->x = -1.0;}
+                else if(b->right == true) {a->x =  1.0;}
+                else                      {a->x =  0.0;}
+
+                if(b->up == true)         {a->y = -1.0;}
+                else if(b->down == true)  {a->y =  1.0;}
+                else                      {a->y =  0.0;}
+            }
+        }
+        EntityManager *em;
+        ComponentManager *cm;
+    private:
 };
 
 #endif

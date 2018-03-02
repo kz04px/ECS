@@ -20,7 +20,6 @@ int main()
     rect.y = 0;
     rect.w = 512;
     rect.h = 512;
-    //SDL_RenderPresent(renderer);
     SDL_RenderSetViewport(renderer, &rect);
     SDL_RenderSetClipRect(renderer, &rect);
 
@@ -33,35 +32,87 @@ int main()
     m.createComponent<Velocity>();
     m.createComponent<Health>();
     m.createComponent<Render>();
+    m.createComponent<Inputs>();
 
     m.createSystem<PhysicsSystem>(new PhysicsSystem());
     m.createSystem<DamageSystem>(new DamageSystem());
     m.createSystem<RenderSystem>(new RenderSystem(renderer));
+    m.createSystem<RenderPlayerSystem>(new RenderPlayerSystem(renderer));
+    m.createSystem<MovementSystem>(new MovementSystem());
 
-    for(int i = 0; i < 100; ++i)
+    m.addEntityComponent(0, Position::id);
+    m.addEntityComponent(0, Velocity::id);
+    m.addEntityComponent(0, Render::id);
+    m.addEntityComponent(0, Inputs::id);
+
+    for(int i = 1; i < 100; ++i)
     {
         m.addEntityComponent(i, Position::id);
         m.addEntityComponent(i, Velocity::id);
         m.addEntityComponent(i, Render::id);
     }
 
-    //m.print();
-
-
+    auto inputs = Inputs();
     bool quitting = false;
     while(!quitting)
     {
         SDL_Event event;
         while(SDL_PollEvent(&event))
         {
-            if(event.type == SDL_QUIT)
+            switch(event.type)
             {
-                quitting = true;
+                case SDL_QUIT:
+                    quitting = true;
+                    break;
+                case SDL_KEYDOWN:
+                    switch(event.key.keysym.sym)
+                    {
+                        case SDLK_ESCAPE:
+                            quitting = true;
+                            break;
+                        case SDLK_w:
+                            inputs.up = true;
+                            break;
+                        case SDLK_a:
+                            inputs.left = true;
+                            break;
+                        case SDLK_s:
+                            inputs.down = true;
+                            break;
+                        case SDLK_d:
+                            inputs.right = true;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case SDL_KEYUP:
+                    switch(event.key.keysym.sym)
+                    {
+                        case SDLK_w:
+                            inputs.up = false;
+                            break;
+                        case SDLK_a:
+                            inputs.left = false;
+                            break;
+                        case SDLK_s:
+                            inputs.down = false;
+                            break;
+                        case SDLK_d:
+                            inputs.right = false;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                default:
+                    break;
             }
         }
 
         glClear(GL_COLOR_BUFFER_BIT);
 
+        m.cm.setComponent<Inputs>(inputs);
         m.sm.update(0.1);
 
         SDL_GL_SwapWindow(window);
