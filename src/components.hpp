@@ -6,6 +6,11 @@
 class Position
 {
     public:
+        Position()
+        {
+            x = (double)rand()/RAND_MAX * 512;
+            y = (double)rand()/RAND_MAX * 512;
+        }
         static const Component id;
         float x;
         float y;
@@ -16,6 +21,11 @@ class Position
 class Velocity
 {
     public:
+        Velocity()
+        {
+            x = (double)rand()/RAND_MAX * 3 - 1.5;
+            y = (double)rand()/RAND_MAX * 3 - 1.5;
+        }
         static const Component id;
         float x;
         float y;

@@ -7,10 +7,8 @@
 class PhysicsSystem : public System
 {
     public:
-        PhysicsSystem(EntityManager *em, ComponentManager *cm)
+        PhysicsSystem()
         {
-            this->em = em;
-            this->cm = cm;
             required.insert(Position::id);
             required.insert(Velocity::id);
         }
@@ -26,23 +24,28 @@ class PhysicsSystem : public System
             {
                 auto a = p.getComponent(e);
                 auto b = v.getComponent(e);
-                a->x += dt * b->x + 0.1;
-                a->y += dt * b->y + 0.2;
+
+                a->x += dt * b->x;
+                a->y += dt * b->y;
+
+                if(a->x > 512) {b->x *= -1;}
+                if(a->x <   0) {b->x *= -1;}
+
+                if(a->y > 512) {b->y *= -1;}
+                if(a->y <   0) {b->y *= -1;}
             }
         }
-    private:
         EntityManager *em;
         ComponentManager *cm;
+    private:
 };
 
 
 class DamageSystem : public System
 {
     public:
-        DamageSystem(EntityManager *em, ComponentManager *cm)
+        DamageSystem()
         {
-            this->em = em;
-            this->cm = cm;
             required.insert(Position::id);
             required.insert(Velocity::id);
         }
@@ -51,19 +54,18 @@ class DamageSystem : public System
             assert(em != NULL);
             assert(cm != NULL);
         }
-    private:
         EntityManager *em;
         ComponentManager *cm;
+    private:
 };
 
 
 class RenderSystem : public System
 {
     public:
-        RenderSystem(EntityManager *em, ComponentManager *cm)
+        RenderSystem(SDL_Renderer *r)
         {
-            this->em = em;
-            this->cm = cm;
+            this->renderer = r;
             required.insert(Position::id);
             required.insert(Render::id);
         }
@@ -79,17 +81,17 @@ class RenderSystem : public System
             {
                 auto a = p.getComponent(e);
                 SDL_Rect r;
-                r.x = a->x;
-                r.y = a->y;
+                r.x = a->x - 2.5;
+                r.y = a->y - 2.5;
                 r.w = 5;
                 r.h = 5;
                 SDL_RenderFillRect(renderer, &r);
             }
         }
-        SDL_Renderer *renderer;
-    private:
         EntityManager *em;
         ComponentManager *cm;
+    private:
+        SDL_Renderer *renderer;
 };
 
 #endif

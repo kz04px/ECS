@@ -82,10 +82,10 @@ class SystemManager
             */
         }
         template<typename T>
-        void addSystem(EntityManager *em, ComponentManager *cm)
+        void addSystem(T* t)
         {
             static_assert(std::is_base_of<System, T>::value, "System must derive from System base class");
-            systems.push_back(new T(em, cm));
+            systems.push_back(t);
         }
     private:
         std::vector<System*> systems;

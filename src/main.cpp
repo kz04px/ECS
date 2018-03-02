@@ -8,6 +8,25 @@
 
 int main()
 {
+    srand(time(0));
+    SDL_Init(SDL_INIT_EVERYTHING);
+
+    SDL_Window *window = SDL_CreateWindow("Entity Component System Example", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 512, 512, SDL_WINDOW_OPENGL);
+
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+    SDL_Rect rect;
+    rect.x = 0;
+    rect.y = 0;
+    rect.w = 512;
+    rect.h = 512;
+    //SDL_RenderPresent(renderer);
+    SDL_RenderSetViewport(renderer, &rect);
+    SDL_RenderSetClipRect(renderer, &rect);
+
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+
     auto m = Manager();
 
     m.createComponent<Position>();
@@ -15,35 +34,20 @@ int main()
     m.createComponent<Health>();
     m.createComponent<Render>();
 
-    m.createSystem<PhysicsSystem>();
-    m.createSystem<DamageSystem>();
-    //m.createSystem<RenderSystem>();
+    m.createSystem<PhysicsSystem>(new PhysicsSystem());
+    m.createSystem<DamageSystem>(new DamageSystem());
+    m.createSystem<RenderSystem>(new RenderSystem(renderer));
 
-    m.addEntityComponent(0, Position::id);
-    m.addEntityComponent(0, Velocity::id);
-    m.addEntityComponent(0, Health::id);
-    m.addEntityComponent(0, Render::id);
-
-    m.addEntityComponent(1, Position::id);
-    m.addEntityComponent(1, Velocity::id);
-    m.addEntityComponent(1, Render::id);
-
-    m.print();
-
-    SDL_Init(SDL_INIT_EVERYTHING);
-
-    SDL_Window *window = SDL_CreateWindow("Entity Component System Example", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 512, 512, SDL_WINDOW_OPENGL);
-
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-/*
-    auto a = m.sm.getSystem<RenderSystem>();
-    if(a != NULL)
+    for(int i = 0; i < 100; ++i)
     {
-        a->renderer = renderer;
+        m.addEntityComponent(i, Position::id);
+        m.addEntityComponent(i, Velocity::id);
+        m.addEntityComponent(i, Render::id);
     }
-    std::cout << "REEE" << std::endl;
-*/
+
+    //m.print();
+
+
     bool quitting = false;
     while(!quitting)
     {

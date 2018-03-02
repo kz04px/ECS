@@ -30,9 +30,11 @@ class Manager
             cm.addComponent<T>();
         }
         template<typename T>
-        void createSystem()
+        void createSystem(T* t)
         {
-            sm.addSystem<T>(&em, &cm);
+            t->em = &em;
+            t->cm = &cm;
+            sm.addSystem<T>(t);
         }
         EntityManager em;
         ComponentManager cm;
