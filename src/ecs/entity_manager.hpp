@@ -30,6 +30,7 @@ class EntityManager
             }
         }
         Entity next = 0;
+        std::set<Entity> allEntities;
         std::map<Entity, std::set<Component>> entities;
     private:
 };

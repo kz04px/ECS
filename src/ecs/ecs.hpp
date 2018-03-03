@@ -17,11 +17,13 @@ class Manager
             sm.print();
             std::cout << std::endl;
         }
-        void addEntityComponent(Entity e, Component c)
+        template<typename T>
+        void addEntityComponent(Entity e, T t)
         {
-            em.entities[e].insert(c);
-            cm.components[c].insert(e);
-            cm.stores[c]->addEntity(e);
+            em.allEntities.insert(e);
+            em.entities[e].insert(T::id);
+            cm.components[T::id].insert(e);
+            cm.getStore<T>().addEntity(e, t);
             sm.updateEntity(e, em.entities[e]);
         }
         template<typename T>

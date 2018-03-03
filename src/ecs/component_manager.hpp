@@ -13,7 +13,7 @@ class Store
 {
     public:
         virtual ~Store() = default;
-        virtual void addEntity(const Entity e) = 0;
+        //virtual void addEntity(const Entity e) = 0;
 };
 
 template<typename T>
@@ -21,9 +21,9 @@ class ComponentStore : public Store
 {
     public:
         ComponentStore(const Component id_) : id(id_) {};
-        void addEntity(const Entity e)
+        void addEntity(const Entity e, T t)
         {
-            components.insert(std::pair<Entity, T>(e, T()));
+            components.insert(std::pair<Entity, T>(e, t));
         }
         auto* getComponent(const Entity e)
         {
