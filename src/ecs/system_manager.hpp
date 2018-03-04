@@ -1,12 +1,15 @@
 #ifndef SYSTEM_MANAGER_HPP
 #define SYSTEM_MANAGER_HPP
 
+
 #include <iostream>
 #include <vector>
 #include <memory>
 
+
 typedef uint32_t Entity;
 typedef uint32_t Component;
+
 
 class System
 {
@@ -14,11 +17,17 @@ class System
         virtual void update(const float dt) = 0;
         std::set<Entity> entities;
         std::set<Component> required;
+        EntityManager *em;
+        ComponentManager *cm;
 };
+
 
 class SystemManager
 {
     public:
+        SystemManager() : systems({})
+        {
+        }
         void update(const float dt)
         {
             for(auto &s : systems)
@@ -90,5 +99,6 @@ class SystemManager
     private:
         std::vector<System*> systems;
 };
+
 
 #endif

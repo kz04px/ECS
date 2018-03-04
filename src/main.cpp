@@ -7,6 +7,10 @@
 #include <SDL_opengl.h>
 #include <ctime>
 
+
+#define RAND_BETWEEN(a, b) ((double)rand()/RAND_MAX * (b-a) + a)
+
+
 int main()
 {
     srand(time(0));
@@ -29,6 +33,7 @@ int main()
 
     auto m = Manager();
 
+    // Components have to be created to be used
     m.createComponent<Position>();
     m.createComponent<Velocity>();
     m.createComponent<Health>();
@@ -37,6 +42,7 @@ int main()
     m.createComponent<Size>();
     m.createComponent<Collision>();
 
+    // Systems have to be created to run
     m.createSystem<MovementSystem>(new MovementSystem());
     m.createSystem<DamageSystem>(new DamageSystem());
     m.createSystem<RenderSystem>(new RenderSystem(renderer));
@@ -44,20 +50,22 @@ int main()
     m.createSystem<DeathSystem>(new DeathSystem());
     m.createSystem<CollisionSystem>(new CollisionSystem());
 
-    m.addEntityComponent<Position>(0, Position());
-    m.addEntityComponent<Velocity>(0, Velocity());
+    // Add the player
+    m.addEntityComponent<Position>(0, Position(RAND_BETWEEN(0.25*512, 0.75*512), RAND_BETWEEN(0.25*512, 0.75*512)));
+    m.addEntityComponent<Velocity>(0, Velocity(8.0, 0.0));
     m.addEntityComponent<Render>(0, Render(0,0,255));
     m.addEntityComponent<Inputs>(0, Inputs());
     m.addEntityComponent<Size>(0, Size(5.0));
     m.addEntityComponent<Health>(0, Health());
     m.addEntityComponent<Collision>(0, Collision());
 
+    // Add the asteroids
     for(int i = 1; i < 200; ++i)
     {
-        m.addEntityComponent<Position>(i, Position());
-        m.addEntityComponent<Velocity>(i, Velocity());
-        m.addEntityComponent<Render>(i, Render());
-        m.addEntityComponent<Size>(i, Size());
+        m.addEntityComponent<Position>(i, Position(RAND_BETWEEN(0, 512), RAND_BETWEEN(0, 512)));
+        m.addEntityComponent<Velocity>(i, Velocity(RAND_BETWEEN(5.0, 10.0), RAND_BETWEEN(0, 2 * 3.142)));
+        m.addEntityComponent<Render>(i, Render(RAND_BETWEEN(200, 255), RAND_BETWEEN(200, 255), RAND_BETWEEN(200, 255)));
+        m.addEntityComponent<Size>(i, Size(RAND_BETWEEN(3.0, 4.0)));
     }
 
 #ifdef BENCHMARK

@@ -1,26 +1,29 @@
 #ifndef COMPONENT_MANAGER_HPP
 #define COMPONENT_MANAGER_HPP
 
+
 #include <iostream>
 #include <set>
 #include <map>
 #include <memory>
 
+
 typedef uint32_t Entity;
 typedef uint32_t Component;
+
 
 class Store
 {
     public:
         virtual ~Store() = default;
-        //virtual void addEntity(const Entity e) = 0;
 };
+
 
 template<typename T>
 class ComponentStore : public Store
 {
     public:
-        ComponentStore(const Component id_) : id(id_) {};
+        ComponentStore(const Component id_) : Store(), id(id_) {};
         void addEntity(const Entity e, T t)
         {
             components.insert(std::pair<Entity, T>(e, t));
@@ -42,9 +45,13 @@ class ComponentStore : public Store
     private:
 };
 
+
 class ComponentManager
 {
     public:
+        ComponentManager()
+        {
+        }
         void print()
         {
             std::cout << "ComponentManager:" << std::endl;
@@ -91,5 +98,6 @@ class ComponentManager
         std::map<Component, std::unique_ptr<Store>> stores;
     private:
 };
+
 
 #endif

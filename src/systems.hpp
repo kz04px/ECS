@@ -1,8 +1,10 @@
 #ifndef SYSTEMS_HPP
 #define SYSTEMS_HPP
 
+
 #include "ecs.hpp"
 #include <SDL.h>
+
 
 class MovementSystem : public System
 {
@@ -35,8 +37,6 @@ class MovementSystem : public System
                 if(a->y <   0) {a->y += 512;}
             }
         }
-        EntityManager *em;
-        ComponentManager *cm;
     private:
 };
 
@@ -82,8 +82,6 @@ class CollisionSystem : public System
                 }
             }
         }
-        EntityManager *em;
-        ComponentManager *cm;
     private:
 };
 
@@ -125,8 +123,6 @@ class DamageSystem : public System
                 }
             }
         }
-        EntityManager *em;
-        ComponentManager *cm;
     private:
 };
 
@@ -134,9 +130,8 @@ class DamageSystem : public System
 class RenderSystem : public System
 {
     public:
-        RenderSystem(SDL_Renderer *r)
+        explicit RenderSystem(SDL_Renderer *r) : renderer(r)
         {
-            this->renderer = r;
             required.insert(Position::id);
             required.insert(Render::id);
             required.insert(Size::id);
@@ -167,8 +162,6 @@ class RenderSystem : public System
                 SDL_RenderFillRect(renderer, &rect);
             }
         }
-        EntityManager *em;
-        ComponentManager *cm;
     private:
         SDL_Renderer *renderer;
 };
@@ -204,8 +197,6 @@ class InputSystem : public System
                 else                      {a->y =  0.0;}
             }
         }
-        EntityManager *em;
-        ComponentManager *cm;
     private:
 };
 
@@ -237,9 +228,8 @@ class DeathSystem : public System
                 }
             }
         }
-        EntityManager *em;
-        ComponentManager *cm;
     private:
 };
+
 
 #endif

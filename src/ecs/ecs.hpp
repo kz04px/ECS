@@ -1,13 +1,18 @@
 #ifndef ECS_HPP
 #define ECS_HPP
 
+
 #include "entity_manager.hpp"
 #include "component_manager.hpp"
 #include "system_manager.hpp"
 
+
 class Manager
 {
     public:
+        Manager() : em(EntityManager()), cm(ComponentManager()), sm(SystemManager())
+        {
+        }
         void print()
         {
             em.print();
@@ -43,5 +48,6 @@ class Manager
         SystemManager sm;
     private:
 };
+
 
 #endif
