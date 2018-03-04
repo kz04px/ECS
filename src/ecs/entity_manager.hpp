@@ -7,6 +7,9 @@
 #include <unordered_map>
 
 
+#define MAX_ENTITIES 1000000
+
+
 typedef uint32_t Entity;
 typedef uint32_t Component;
 const Entity invalidEntity = 0;
@@ -23,6 +26,13 @@ class EntityManager
             entities[next] = components;
             next++;
         }
+        void removeEntity(const Entity e)
+        {
+            assert(e != invalidEntity);
+
+            allEntities.erase(e);
+            entities.erase(e);
+        }
         void print()
         {
             std::cout << "EntityManager:" << std::endl;
@@ -38,6 +48,10 @@ class EntityManager
         }
         Entity getEntity()
         {
+            if(next >= MAX_ENTITIES)
+            {
+                return invalidEntity;
+            }
             return next++;
         }
         Entity next = 1;

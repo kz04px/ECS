@@ -16,6 +16,7 @@ class Store
 {
     public:
         virtual ~Store() = default;
+        virtual void removeEntity(const Entity e) = 0;
 };
 
 
@@ -27,6 +28,10 @@ class ComponentStore : public Store
         void addEntity(const Entity e, T t)
         {
             components.insert(std::pair<Entity, T>(e, t));
+        }
+        void removeEntity(const Entity e)
+        {
+            components.erase(e);
         }
         auto* getComponent(const Entity e)
         {
@@ -87,6 +92,17 @@ class ComponentManager
         void addComponent()
         {
             stores[T::id].reset(static_cast<Store*>(new ComponentStore<T>(T::id)));
+        }
+        void removeEntity(const Entity e)
+        {
+            for(auto &component : components)
+            {
+                component.second.erase(e);
+            }
+            for(auto &store : stores)
+            {
+                store.second->removeEntity(e);
+            }
         }
         template<typename T>
         ComponentStore<T>& getStore()

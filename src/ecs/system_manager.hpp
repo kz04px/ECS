@@ -9,16 +9,21 @@
 
 typedef uint32_t Entity;
 typedef uint32_t Component;
-
+class SystemManager;
 
 class System
 {
     public:
         virtual void update(const float dt) = 0;
+        void removeEntity(const Entity e)
+        {
+            entities.erase(e);
+        }
         std::set<Entity> entities;
         std::set<Component> required;
         EntityManager *em;
         ComponentManager *cm;
+        SystemManager *sm;
 };
 
 
@@ -55,6 +60,13 @@ class SystemManager
                 }
 
                 std::cout << std::endl;
+            }
+        }
+        void removeEntity(const Entity e)
+        {
+            for(auto &system : systems)
+            {
+                system->removeEntity(e);
             }
         }
         void updateEntity(const Entity e, const std::set<Component> c)

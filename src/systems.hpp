@@ -77,6 +77,9 @@ class CollisionSystem : public System
                     if(abs(a->x - a2->x) <= dist && abs(a->y - a2->y) <= dist)
                     {
                         b->collision = true;
+                        em->removeEntity(e2);
+                        cm->removeEntity(e2);
+                        sm->removeEntity(e2);
                         break;
                     }
                 }

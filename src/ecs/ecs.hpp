@@ -43,6 +43,7 @@ class Manager
         {
             t->em = &em;
             t->cm = &cm;
+            t->sm = &sm;
             sm.addSystem<T>(t);
         }
         EntityManager em;
