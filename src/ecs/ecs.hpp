@@ -25,6 +25,8 @@ class Manager
         template<typename T>
         void addEntityComponent(Entity e, T t)
         {
+            assert(e != invalidEntity);
+
             em.allEntities.insert(e);
             em.entities[e].insert(T::id);
             cm.components[T::id].insert(e);

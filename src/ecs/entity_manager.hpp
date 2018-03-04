@@ -9,6 +9,7 @@
 
 typedef uint32_t Entity;
 typedef uint32_t Component;
+const Entity invalidEntity = 0;
 
 
 class EntityManager
@@ -35,7 +36,11 @@ class EntityManager
                 std::cout << std::endl;
             }
         }
-        Entity next = 0;
+        Entity getEntity()
+        {
+            return next++;
+        }
+        Entity next = 1;
         std::set<Entity> allEntities;
         std::unordered_map<Entity, std::set<Component>> entities;
     private:

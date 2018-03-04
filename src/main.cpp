@@ -51,21 +51,29 @@ int main()
     m.createSystem<CollisionSystem>(new CollisionSystem());
 
     // Add the player
-    m.addEntityComponent<Position>(0, Position(RAND_BETWEEN(0.25*512, 0.75*512), RAND_BETWEEN(0.25*512, 0.75*512)));
-    m.addEntityComponent<Velocity>(0, Velocity(8.0, 0.0));
-    m.addEntityComponent<Render>(0, Render(0,0,255));
-    m.addEntityComponent<Inputs>(0, Inputs());
-    m.addEntityComponent<Size>(0, Size(5.0));
-    m.addEntityComponent<Health>(0, Health());
-    m.addEntityComponent<Collision>(0, Collision());
+    Entity e = m.em.getEntity();
+    if(e != invalidEntity)
+    {
+        m.addEntityComponent<Position>(e, Position(RAND_BETWEEN(0.25*512, 0.75*512), RAND_BETWEEN(0.25*512, 0.75*512)));
+        m.addEntityComponent<Velocity>(e, Velocity(8.0, 0.0));
+        m.addEntityComponent<Render>(e, Render(0,0,255));
+        m.addEntityComponent<Inputs>(e, Inputs());
+        m.addEntityComponent<Size>(e, Size(5.0));
+        m.addEntityComponent<Health>(e, Health());
+        m.addEntityComponent<Collision>(e, Collision());
+    }
 
     // Add the asteroids
-    for(int i = 1; i < 200; ++i)
+    for(int i = 0; i < 200; ++i)
     {
-        m.addEntityComponent<Position>(i, Position(RAND_BETWEEN(0, 512), RAND_BETWEEN(0, 512)));
-        m.addEntityComponent<Velocity>(i, Velocity(RAND_BETWEEN(5.0, 10.0), RAND_BETWEEN(0, 2 * 3.142)));
-        m.addEntityComponent<Render>(i, Render(RAND_BETWEEN(200, 255), RAND_BETWEEN(200, 255), RAND_BETWEEN(200, 255)));
-        m.addEntityComponent<Size>(i, Size(RAND_BETWEEN(3.0, 4.0)));
+        Entity e = m.em.getEntity();
+        if(e != invalidEntity)
+        {
+            m.addEntityComponent<Position>(e, Position(RAND_BETWEEN(0, 512), RAND_BETWEEN(0, 512)));
+            m.addEntityComponent<Velocity>(e, Velocity(RAND_BETWEEN(5.0, 10.0), RAND_BETWEEN(0, 2 * 3.142)));
+            m.addEntityComponent<Render>(e, Render(RAND_BETWEEN(200, 255), RAND_BETWEEN(200, 255), RAND_BETWEEN(200, 255)));
+            m.addEntityComponent<Size>(e, Size(RAND_BETWEEN(3.0, 4.0)));
+        }
     }
 
 #ifdef BENCHMARK
