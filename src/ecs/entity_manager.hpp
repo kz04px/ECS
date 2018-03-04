@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include <set>
-#include <map>
+#include <unordered_map>
 
 
 typedef uint32_t Entity;
@@ -37,7 +37,7 @@ class EntityManager
         }
         Entity next = 0;
         std::set<Entity> allEntities;
-        std::map<Entity, std::set<Component>> entities;
+        std::unordered_map<Entity, std::set<Component>> entities;
     private:
 };
 

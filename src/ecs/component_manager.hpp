@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include <set>
-#include <map>
+#include <unordered_map>
 #include <memory>
 
 
@@ -41,7 +41,7 @@ class ComponentStore : public Store
             }
         }
         const Component id;
-        std::map<Entity, T> components;
+        std::unordered_map<Entity, T> components;
     private:
 };
 
@@ -94,8 +94,8 @@ class ComponentManager
             return dynamic_cast<ComponentStore<T>&>(*stores[T::id]);
         }
         Component next = 0;
-        std::map<Component, std::set<Entity>> components;
-        std::map<Component, std::unique_ptr<Store>> stores;
+        std::unordered_map<Component, std::set<Entity>> components;
+        std::unordered_map<Component, std::unique_ptr<Store>> stores;
     private:
 };
 
