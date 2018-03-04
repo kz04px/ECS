@@ -43,10 +43,11 @@ int main()
     m.createComponent<Collision>();
 
     // Systems have to be created to run
+    auto inputSystem = new InputSystem();
     m.createSystem<MovementSystem>(new MovementSystem());
     m.createSystem<DamageSystem>(new DamageSystem());
     m.createSystem<RenderSystem>(new RenderSystem(renderer));
-    m.createSystem<InputSystem>(new InputSystem());
+    m.createSystem<InputSystem>(inputSystem);
     m.createSystem<DeathSystem>(new DeathSystem());
     m.createSystem<CollisionSystem>(new CollisionSystem());
 
@@ -76,6 +77,14 @@ int main()
         }
     }
 
+
+    // User inputs
+    bool left;
+    bool right;
+    bool up;
+    bool down;
+
+
 #ifdef BENCHMARK
     int frames = 100000;
     clock_t start = clock();
@@ -95,7 +104,7 @@ int main()
     std::cout << "Per frame: " << 1000*timePer << "ms" << std::endl;
 #endif
 
-    auto inputs = Inputs();
+
     bool quitting = false;
     while(!quitting)
     {
@@ -114,16 +123,16 @@ int main()
                             quitting = true;
                             break;
                         case SDLK_w:
-                            inputs.up = true;
+                            up = true;
                             break;
                         case SDLK_a:
-                            inputs.left = true;
+                            left = true;
                             break;
                         case SDLK_s:
-                            inputs.down = true;
+                            down = true;
                             break;
                         case SDLK_d:
-                            inputs.right = true;
+                            right = true;
                             break;
                         default:
                             break;
@@ -133,16 +142,16 @@ int main()
                     switch(event.key.keysym.sym)
                     {
                         case SDLK_w:
-                            inputs.up = false;
+                            up = false;
                             break;
                         case SDLK_a:
-                            inputs.left = false;
+                            left = false;
                             break;
                         case SDLK_s:
-                            inputs.down = false;
+                            down = false;
                             break;
                         case SDLK_d:
-                            inputs.right = false;
+                            right = false;
                             break;
                         default:
                             break;
@@ -155,7 +164,7 @@ int main()
 
         glClear(GL_COLOR_BUFFER_BIT);
 
-        m.cm.setComponent<Inputs>(inputs);
+        inputSystem->set(left, right, up, down);
         m.sm.update(1.0/60);
 
         SDL_GL_SwapWindow(window);

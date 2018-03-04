@@ -80,15 +80,6 @@ class ComponentManager
             }
         }
         template<typename T>
-        void setComponent(T &t)
-        {
-            auto &store = getStore<T>();
-            for(auto &i : store.components)
-            {
-                i.second = t;
-            }
-        }
-        template<typename T>
         void addComponent()
         {
             stores[T::id].reset(static_cast<Store*>(new ComponentStore<T>(T::id)));

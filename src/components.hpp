@@ -70,14 +70,10 @@ class Render
 class Inputs
 {
     public:
-        Inputs() : left(false), right(false), up(false), down(false)
+        Inputs()
         {
         }
         static const Component id;
-        bool left;
-        bool right;
-        bool up;
-        bool down;
     private:
 };
 

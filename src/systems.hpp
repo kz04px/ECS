@@ -184,22 +184,31 @@ class InputSystem : public System
             assert(cm != NULL);
 
             auto &v = cm->getStore<Velocity>();
-            auto &i = cm->getStore<Inputs>();
 
             for(auto e : entities)
             {
                 auto a = v.getComponent(e);
-                auto b = i.getComponent(e);
 
-                if(b->left == true)       {a->x = -1.0;}
-                else if(b->right == true) {a->x =  1.0;}
-                else                      {a->x =  0.0;}
+                if(left == true)       {a->x = -1.0;}
+                else if(right == true) {a->x =  1.0;}
+                else                   {a->x =  0.0;}
 
-                if(b->up == true)         {a->y = -1.0;}
-                else if(b->down == true)  {a->y =  1.0;}
-                else                      {a->y =  0.0;}
+                if(up == true)         {a->y = -1.0;}
+                else if(down == true)  {a->y =  1.0;}
+                else                   {a->y =  0.0;}
             }
         }
+        void set(bool l, bool r, bool u, bool d)
+        {
+            left = l;
+            right = r;
+            up = u;
+            down = d;
+        }
+        bool left;
+        bool right;
+        bool up;
+        bool down;
     private:
 };
 
