@@ -1,8 +1,8 @@
 CC         = g++
-CFLAGS     = -std=c++14 -pthread -Wall -Wextra
+CFLAGS     = -std=c++14 -Wall -Wextra
 
 LINKER     = g++ -o
-LFLAGS     = -lglfw -lGLEW -lGL -lSDL2
+LFLAGS     = -lGL -lSDL2
 
 TARGET     = main
 SRCDIR     = src
