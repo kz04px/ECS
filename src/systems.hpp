@@ -75,6 +75,24 @@ class CollisionSystem : public System
                     if(abs(a->x - a2->x) <= dist && abs(a->y - a2->y) <= dist)
                     {
                         b->collision = true;
+
+                        if(c2->radius >= 2.0)
+                        {
+                            // Add new asteroids
+                            for(int i = 0; i < rand()%2+2; ++i)
+                            {
+                                Entity newEntity = manager->em.getEntity();
+                                if(newEntity != invalidEntity)
+                                {
+                                    float colour = RAND_BETWEEN(100, 200);
+                                    manager->addEntityComponent<Position>(newEntity, Position(a2->x, a2->y));
+                                    manager->addEntityComponent<Velocity>(newEntity, Velocity(RAND_BETWEEN(5.0, 10.0), RAND_BETWEEN(0, 2 * 3.142)));
+                                    manager->addEntityComponent<Render>(newEntity, Render(colour, colour, colour));
+                                    manager->addEntityComponent<Size>(newEntity, Size(c2->radius/2));
+                                }
+                            }
+                        }
+
                         manager->em.removeEntity(e2);
                         manager->cm.removeEntity(e2);
                         manager->sm.removeEntity(e2);
