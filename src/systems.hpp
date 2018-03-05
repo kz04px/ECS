@@ -171,12 +171,18 @@ class RenderSystem : public System
 
                 SDL_SetRenderDrawColor(renderer, c->red, c->green, c->blue, 255);
 
-                SDL_Rect rect;
-                rect.x = a->x - b->radius;
-                rect.y = a->y - b->radius;
-                rect.w = 2 * b->radius;
-                rect.h = 2 * b->radius;
-                SDL_RenderFillRect(renderer, &rect);
+                for(int x = -1; x < 2; ++x)
+                {
+                    for(int y = -1; y < 2; ++y)
+                    {
+                        SDL_Rect rect;
+                        rect.x = a->x - b->radius + x*512;
+                        rect.y = a->y - b->radius + y*512;
+                        rect.w = 2 * b->radius;
+                        rect.h = 2 * b->radius;
+                        SDL_RenderFillRect(renderer, &rect);
+                    }
+                }
             }
         }
     private:
@@ -312,8 +318,8 @@ class ItemSystem : public System
                         float dy = a->mouseY - pos->y;
                         float dir = atan2(dy, dx);
 
-                        float x = b->x + 10*cos(dir);
-                        float y = b->y + 10*sin(dir);
+                        float x = b->x + 15*cos(dir);
+                        float y = b->y + 15*sin(dir);
 
                         if(a->selected == 0)
                         {
