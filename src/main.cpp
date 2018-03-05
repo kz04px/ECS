@@ -41,6 +41,8 @@ int main()
     m.createComponent<Inputs>();
     m.createComponent<Size>();
     m.createComponent<Collision>();
+    m.createComponent<Inventory>();
+    m.createComponent<Use>();
 
     // Systems have to be created to run
     auto inputSystem = new InputSystem();
@@ -50,39 +52,54 @@ int main()
     m.createSystem<InputSystem>(inputSystem);
     m.createSystem<DeathSystem>(new DeathSystem());
     m.createSystem<CollisionSystem>(new CollisionSystem());
+    m.createSystem<ItemSystem>(new ItemSystem());
 
     // Add the player
-    Entity e = m.em.getEntity();
-    if(e != invalidEntity)
+    Entity playerEntity = m.em.getEntity();
+    if(playerEntity != invalidEntity)
     {
-        m.addEntityComponent<Position>(e, Position(RAND_BETWEEN(0.25*512, 0.75*512), RAND_BETWEEN(0.25*512, 0.75*512)));
-        m.addEntityComponent<Velocity>(e, Velocity(8.0, 0.0));
-        m.addEntityComponent<Render>(e, Render(0,0,255));
-        m.addEntityComponent<Inputs>(e, Inputs());
-        m.addEntityComponent<Size>(e, Size(5.0));
-        m.addEntityComponent<Health>(e, Health());
-        m.addEntityComponent<Collision>(e, Collision());
+        m.addEntityComponent<Position>(playerEntity, Position(RAND_BETWEEN(0.25*512, 0.75*512), RAND_BETWEEN(0.25*512, 0.75*512)));
+        m.addEntityComponent<Velocity>(playerEntity, Velocity(8.0, 0.0));
+        m.addEntityComponent<Render>(playerEntity, Render(0,0,255));
+        m.addEntityComponent<Inputs>(playerEntity, Inputs());
+        m.addEntityComponent<Size>(playerEntity, Size(5.0));
+        m.addEntityComponent<Health>(playerEntity, Health());
+        m.addEntityComponent<Collision>(playerEntity, Collision());
+        m.addEntityComponent<Inventory>(playerEntity, Inventory());
+    }
+
+    // Add a laser item
+    Entity laserEntity = m.em.getEntity();
+    if(laserEntity != invalidEntity)
+    {
+        m.addEntityComponent<Use>(laserEntity, Use());
+
+        // Give the laser to the player
+        auto a = m.getEntityComponent<Inventory>(playerEntity);
+        a->items.push_back(laserEntity);
     }
 
     // Add the asteroids
-    for(int i = 0; i < 200; ++i)
+    for(int i = 0; i < 20; ++i)
     {
         Entity e = m.em.getEntity();
         if(e != invalidEntity)
         {
+            float colour = RAND_BETWEEN(100, 200);
             m.addEntityComponent<Position>(e, Position(RAND_BETWEEN(0, 512), RAND_BETWEEN(0, 512)));
             m.addEntityComponent<Velocity>(e, Velocity(RAND_BETWEEN(5.0, 10.0), RAND_BETWEEN(0, 2 * 3.142)));
-            m.addEntityComponent<Render>(e, Render(RAND_BETWEEN(200, 255), RAND_BETWEEN(200, 255), RAND_BETWEEN(200, 255)));
-            m.addEntityComponent<Size>(e, Size(RAND_BETWEEN(3.0, 4.0)));
+            m.addEntityComponent<Render>(e, Render(colour, colour, colour));
+            m.addEntityComponent<Size>(e, Size(RAND_BETWEEN(10.0, 15.0)));
         }
     }
 
 
     // User inputs
-    bool left;
-    bool right;
-    bool up;
-    bool down;
+    bool left = false;
+    bool right = false;
+    bool up = false;
+    bool down = false;
+    bool use = false;
 
 
 #ifdef BENCHMARK
@@ -157,14 +174,46 @@ int main()
                             break;
                     }
                     break;
+                case SDL_MOUSEBUTTONDOWN:
+                    switch(event.button.button)
+                    {
+                        case SDL_BUTTON_LEFT:
+                            use = true;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case SDL_MOUSEBUTTONUP:
+                    switch(event.button.button)
+                    {
+                        case SDL_BUTTON_LEFT:
+                            use = false;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
                 default:
                     break;
             }
         }
 
+        int x;
+        int y;
+        SDL_GetMouseState(&x, &y);
+
         glClear(GL_COLOR_BUFFER_BIT);
 
-        inputSystem->set(left, right, up, down);
+        auto a = m.getEntityComponent<Inputs>(playerEntity);
+        a->left = left;
+        a->right = right;
+        a->up = up;
+        a->down = down;
+        a->use = use;
+        a->mouseX = x;
+        a->mouseY = y;
+
         m.sm.update(1.0/60);
 
         SDL_GL_SwapWindow(window);

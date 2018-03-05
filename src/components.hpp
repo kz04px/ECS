@@ -11,7 +11,7 @@
 class Position
 {
     public:
-        Position() {}
+        Position() : x(0.0), y(0.0) {}
         Position(float a, float b) : x(a), y(b)
         {
         }
@@ -25,7 +25,7 @@ class Position
 class Velocity
 {
     public:
-        Velocity() {}
+        Velocity() : speed(0.0), x(0.0), y(1.0) {}
         explicit Velocity(float s, float dir) : speed(s), x(cos(dir)), y(sin(dir))
         {
         }
@@ -55,7 +55,7 @@ class Health
 class Render
 {
     public:
-        Render() {}
+        Render() : red(255), green(0), blue(0) {}
         Render(int r, int g, int b) : red(r), green(g), blue(b)
         {
         }
@@ -70,10 +70,17 @@ class Render
 class Inputs
 {
     public:
-        Inputs()
+        Inputs() : left(false), right(false), up(false), down(false), use(false), mouseX(0.0), mouseY(0.0)
         {
         }
         static const Component id;
+        bool left;
+        bool right;
+        bool up;
+        bool down;
+        bool use;
+        int mouseX;
+        int mouseY;
     private:
 };
 
@@ -81,7 +88,7 @@ class Inputs
 class Size
 {
     public:
-        Size() {}
+        Size() : radius(1.0) {}
         explicit Size(float r) : radius(r)
         {
         }
@@ -103,6 +110,32 @@ class Collision
 };
 
 
+class Inventory
+{
+    public:
+        Inventory() : items({})
+        {
+        }
+        static const Component id;
+        std::vector<Entity> items;
+    private:
+};
+
+
+class Use
+{
+    public:
+        Use() : uses(-1), lastUsed(0.0), cooldown(1.0)
+        {
+        }
+        static const Component id;
+        int uses;
+        float lastUsed;
+        float cooldown;
+    private:
+};
+
+
 const Component Position::id = 0;
 const Component Velocity::id = 1;
 const Component Health::id = 2;
@@ -110,6 +143,8 @@ const Component Render::id = 3;
 const Component Inputs::id = 4;
 const Component Size::id = 5;
 const Component Collision::id = 6;
+const Component Inventory::id = 7;
+const Component Use::id = 8;
 
 
 #endif

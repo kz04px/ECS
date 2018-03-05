@@ -16,11 +16,10 @@ class MovementSystem : public System
         }
         void update(const float dt)
         {
-            assert(em != NULL);
-            assert(cm != NULL);
+            assert(manager != NULL);
 
-            auto &p = cm->getStore<Position>();
-            auto &v = cm->getStore<Velocity>();
+            auto &p = manager->cm.getStore<Position>();
+            auto &v = manager->cm.getStore<Velocity>();
 
             for(auto e : entities)
             {
@@ -52,12 +51,11 @@ class CollisionSystem : public System
         }
         void update(const float dt)
         {
-            assert(em != NULL);
-            assert(cm != NULL);
+            assert(manager != NULL);
 
-            auto &positionStore = cm->getStore<Position>();
-            auto &collisionStore = cm->getStore<Collision>();
-            auto &sizeStore = cm->getStore<Size>();
+            auto &positionStore  = manager->cm.getStore<Position>();
+            auto &collisionStore = manager->cm.getStore<Collision>();
+            auto &sizeStore      = manager->cm.getStore<Size>();
 
             for(auto e : entities)
             {
@@ -66,7 +64,7 @@ class CollisionSystem : public System
                 auto c = sizeStore.getComponent(e);
                 b->collision = false;
 
-                for(auto e2 : em->allEntities)
+                for(auto e2 : manager->em.allEntities)
                 {
                     if(e == e2) {continue;}
 
@@ -77,9 +75,9 @@ class CollisionSystem : public System
                     if(abs(a->x - a2->x) <= dist && abs(a->y - a2->y) <= dist)
                     {
                         b->collision = true;
-                        em->removeEntity(e2);
-                        cm->removeEntity(e2);
-                        sm->removeEntity(e2);
+                        manager->em.removeEntity(e2);
+                        manager->cm.removeEntity(e2);
+                        manager->sm.removeEntity(e2);
                         break;
                     }
                 }
@@ -99,11 +97,10 @@ class DamageSystem : public System
         }
         void update(const float dt)
         {
-            assert(em != NULL);
-            assert(cm != NULL);
+            assert(manager != NULL);
 
-            auto &h = cm->getStore<Health>();
-            auto &c = cm->getStore<Collision>();
+            auto &h = manager->cm.getStore<Health>();
+            auto &c = manager->cm.getStore<Collision>();
 
             for(auto e : entities)
             {
@@ -141,13 +138,12 @@ class RenderSystem : public System
         }
         void update(const float dt)
         {
-            assert(em != NULL);
-            assert(cm != NULL);
+            assert(manager != NULL);
             assert(renderer != NULL);
 
-            auto &p = cm->getStore<Position>();
-            auto &s = cm->getStore<Size>();
-            auto &r = cm->getStore<Render>();
+            auto &p = manager->cm.getStore<Position>();
+            auto &s = manager->cm.getStore<Size>();
+            auto &r = manager->cm.getStore<Render>();
 
             for(auto e : entities)
             {
@@ -175,40 +171,30 @@ class InputSystem : public System
     public:
         InputSystem()
         {
+            required.insert(Position::id);
             required.insert(Velocity::id);
             required.insert(Inputs::id);
         }
         void update(const float dt)
         {
-            assert(em != NULL);
-            assert(cm != NULL);
+            assert(manager != NULL);
 
-            auto &v = cm->getStore<Velocity>();
+            auto &velocityStore = manager->cm.getStore<Velocity>();
+            auto &inputsStore   = manager->cm.getStore<Inputs>();
 
             for(auto e : entities)
             {
-                auto a = v.getComponent(e);
+                auto a = velocityStore.getComponent(e);
+                auto b = inputsStore.getComponent(e);
 
-                if(left == true)       {a->x = -1.0;}
-                else if(right == true) {a->x =  1.0;}
-                else                   {a->x =  0.0;}
-
-                if(up == true)         {a->y = -1.0;}
-                else if(down == true)  {a->y =  1.0;}
-                else                   {a->y =  0.0;}
+                if(b->left == true)       {a->x = -1.0;}
+                else if(b->right == true) {a->x =  1.0;}
+                else                      {a->x =  0.0;}
+                if(b->up == true)         {a->y = -1.0;}
+                else if(b->down == true)  {a->y =  1.0;}
+                else                      {a->y =  0.0;}
             }
         }
-        void set(bool l, bool r, bool u, bool d)
-        {
-            left = l;
-            right = r;
-            up = u;
-            down = d;
-        }
-        bool left;
-        bool right;
-        bool up;
-        bool down;
     private:
 };
 
@@ -222,10 +208,9 @@ class DeathSystem : public System
         }
         void update(const float dt)
         {
-            assert(em != NULL);
-            assert(cm != NULL);
+            assert(manager != NULL);
 
-            auto &h = cm->getStore<Health>();
+            auto &h = manager->cm.getStore<Health>();
 
             for(auto e : entities)
             {
@@ -237,6 +222,83 @@ class DeathSystem : public System
                     a->dead = false;
                     a->health = 1;
                     a->timeAlive = 0.0;
+                }
+            }
+        }
+    private:
+};
+
+
+class ItemSystem : public System
+{
+    public:
+        ItemSystem()
+        {
+            required.insert(Position::id);
+            required.insert(Inventory::id);
+            required.insert(Inputs::id);
+        }
+        void update(const float dt)
+        {
+            assert(manager != NULL);
+
+            auto &positionStore  = manager->cm.getStore<Position>();
+            auto &inventoryStore = manager->cm.getStore<Inventory>();
+            auto &inputsStore    = manager->cm.getStore<Inputs>();
+            auto &useStore       = manager->cm.getStore<Use>();
+
+            for(auto e : entities)
+            {
+                auto a = inputsStore.getComponent(e);
+                auto b = positionStore.getComponent(e);
+                auto c = inventoryStore.getComponent(e);
+
+                for(auto i : c->items)
+                {
+                    auto d = useStore.getComponent(i);
+
+                    if(d->uses <= 0)
+                    {
+
+                    }
+
+                    d->lastUsed -= dt;
+                    if(d->lastUsed < 0.0)
+                    {
+                        d->lastUsed = 0.0;
+                    }
+                }
+
+                auto d = useStore.getComponent(c->items[0]);
+
+                if(a->use == true && d->uses != 0 && d->lastUsed <= 0.0)
+                {
+                    d->lastUsed = d->cooldown;
+
+                    if(d->uses > 0)
+                    {
+                        d->uses--;
+                    }
+
+                    Entity newEntity = manager->em.getEntity();
+                    if(newEntity != invalidEntity)
+                    {
+                        auto pos = positionStore.getComponent(e);
+
+                        float dx = a->mouseX - pos->x;
+                        float dy = a->mouseY - pos->y;
+                        float dir = atan2(dy, dx);
+
+                        float x = b->x + 10*cos(dir);
+                        float y = b->y + 10*sin(dir);
+
+                        manager->addEntityComponent<Position>(newEntity, Position(x, y));
+                        manager->addEntityComponent<Velocity>(newEntity, Velocity(20.0, dir));
+                        manager->addEntityComponent<Render>(newEntity, Render(0,255,0));
+                        manager->addEntityComponent<Size>(newEntity, Size(1.0));
+                        manager->addEntityComponent<Collision>(newEntity, Collision());
+                        manager->addEntityComponent<Health>(newEntity, Health());
+                    }
                 }
             }
         }

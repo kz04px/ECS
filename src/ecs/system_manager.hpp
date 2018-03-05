@@ -10,6 +10,8 @@
 typedef uint32_t Entity;
 typedef uint32_t Component;
 class SystemManager;
+class Manager;
+
 
 class System
 {
@@ -21,9 +23,7 @@ class System
         }
         std::set<Entity> entities;
         std::set<Component> required;
-        EntityManager *em;
-        ComponentManager *cm;
-        SystemManager *sm;
+        Manager *manager;
 };
 
 

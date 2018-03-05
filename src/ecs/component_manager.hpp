@@ -33,7 +33,7 @@ class ComponentStore : public Store
         {
             components.erase(e);
         }
-        auto* getComponent(const Entity e)
+        T* getComponent(const Entity e)
         {
             return &components[e];
         }

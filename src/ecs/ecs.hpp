@@ -34,6 +34,11 @@ class Manager
             sm.updateEntity(e, em.entities[e]);
         }
         template<typename T>
+        T* getEntityComponent(const Entity e)
+        {
+            return cm.getStore<T>().getComponent(e);
+        }
+        template<typename T>
         void createComponent()
         {
             cm.addComponent<T>();
@@ -41,9 +46,7 @@ class Manager
         template<typename T>
         void createSystem(T* t)
         {
-            t->em = &em;
-            t->cm = &cm;
-            t->sm = &sm;
+            t->manager = this;
             sm.addSystem<T>(t);
         }
         EntityManager em;
