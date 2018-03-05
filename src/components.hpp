@@ -70,7 +70,7 @@ class Render
 class Inputs
 {
     public:
-        Inputs() : left(false), right(false), up(false), down(false), use(false), mouseX(0.0), mouseY(0.0)
+        Inputs() : left(false), right(false), up(false), down(false), use(false), mouseX(0.0), mouseY(0.0), selected(0)
         {
         }
         static const Component id;
@@ -81,6 +81,7 @@ class Inputs
         bool use;
         int mouseX;
         int mouseY;
+        int selected;
     private:
 };
 
@@ -126,6 +127,9 @@ class Use
 {
     public:
         Use() : uses(-1), lastUsed(0.0), cooldown(1.0)
+        {
+        }
+        Use(int amount, float cooldown) : uses(amount), lastUsed(0.0), cooldown(cooldown)
         {
         }
         static const Component id;

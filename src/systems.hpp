@@ -253,6 +253,11 @@ class ItemSystem : public System
                 auto b = positionStore.getComponent(e);
                 auto c = inventoryStore.getComponent(e);
 
+                if(a->selected >= c->items.size())
+                {
+                    continue;
+                }
+
                 for(auto i : c->items)
                 {
                     auto d = useStore.getComponent(i);
@@ -269,7 +274,7 @@ class ItemSystem : public System
                     }
                 }
 
-                auto d = useStore.getComponent(c->items[0]);
+                auto d = useStore.getComponent(c->items[a->selected]);
 
                 if(a->use == true && d->uses != 0 && d->lastUsed <= 0.0)
                 {
@@ -292,12 +297,26 @@ class ItemSystem : public System
                         float x = b->x + 10*cos(dir);
                         float y = b->y + 10*sin(dir);
 
-                        manager->addEntityComponent<Position>(newEntity, Position(x, y));
-                        manager->addEntityComponent<Velocity>(newEntity, Velocity(20.0, dir));
-                        manager->addEntityComponent<Render>(newEntity, Render(0,255,0));
-                        manager->addEntityComponent<Size>(newEntity, Size(1.0));
-                        manager->addEntityComponent<Collision>(newEntity, Collision());
-                        manager->addEntityComponent<Health>(newEntity, Health());
+                        if(a->selected == 0)
+                        {
+                            // Laser
+                            manager->addEntityComponent<Position>(newEntity, Position(x, y));
+                            manager->addEntityComponent<Velocity>(newEntity, Velocity(20.0, dir));
+                            manager->addEntityComponent<Render>(newEntity, Render(0,255,0));
+                            manager->addEntityComponent<Size>(newEntity, Size(1.0));
+                            manager->addEntityComponent<Collision>(newEntity, Collision());
+                            manager->addEntityComponent<Health>(newEntity, Health());
+                        }
+                        else if(a->selected == 1)
+                        {
+                            // Rocket
+                            manager->addEntityComponent<Position>(newEntity, Position(x, y));
+                            manager->addEntityComponent<Velocity>(newEntity, Velocity(5.0, dir));
+                            manager->addEntityComponent<Render>(newEntity, Render(255,0,0));
+                            manager->addEntityComponent<Size>(newEntity, Size(2.0));
+                            manager->addEntityComponent<Collision>(newEntity, Collision());
+                            manager->addEntityComponent<Health>(newEntity, Health());
+                        }
                     }
                 }
             }

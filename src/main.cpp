@@ -72,11 +72,22 @@ int main()
     Entity laserEntity = m.em.getEntity();
     if(laserEntity != invalidEntity)
     {
-        m.addEntityComponent<Use>(laserEntity, Use());
+        m.addEntityComponent<Use>(laserEntity, Use(-1, 1.0));
 
         // Give the laser to the player
         auto a = m.getEntityComponent<Inventory>(playerEntity);
         a->items.push_back(laserEntity);
+    }
+
+    // Add a rocket item
+    Entity rocketEntity = m.em.getEntity();
+    if(rocketEntity != invalidEntity)
+    {
+        m.addEntityComponent<Use>(rocketEntity, Use(-1, 5.0));
+
+        // Give the rocket to the player
+        auto a = m.getEntityComponent<Inventory>(playerEntity);
+        a->items.push_back(rocketEntity);
     }
 
     // Add the asteroids
@@ -100,6 +111,7 @@ int main()
     bool up = false;
     bool down = false;
     bool use = false;
+    int selected = 0;
 
 
 #ifdef BENCHMARK
@@ -150,6 +162,18 @@ int main()
                             break;
                         case SDLK_d:
                             right = true;
+                            break;
+                        case SDLK_1:
+                            std::cout << "Selected: 1" << std::endl;
+                            selected = 0;
+                            break;
+                        case SDLK_2:
+                            std::cout << "Selected: 2" << std::endl;
+                            selected = 1;
+                            break;
+                        case SDLK_3:
+                            std::cout << "Selected: 3" << std::endl;
+                            selected = 2;
                             break;
                         default:
                             break;
@@ -213,6 +237,7 @@ int main()
         a->use = use;
         a->mouseX = x;
         a->mouseY = y;
+        a->selected = selected;
 
         m.sm.update(1.0/60);
 
