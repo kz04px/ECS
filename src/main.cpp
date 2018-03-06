@@ -65,7 +65,7 @@ int main()
     if(playerEntity != invalidEntity)
     {
         m.addEntityComponent<Position>(playerEntity, Position(RAND_BETWEEN(0.25*512, 0.75*512), RAND_BETWEEN(0.25*512, 0.75*512)));
-        m.addEntityComponent<Velocity>(playerEntity, Velocity(8.0, 0.0));
+        m.addEntityComponent<Velocity>(playerEntity, Velocity(80.0, 0.0));
         m.addEntityComponent<Size>(playerEntity, Size(5.0));
         m.addEntityComponent<Render>(playerEntity, Render(0,0,255));
         m.addEntityComponent<Inputs>(playerEntity, Inputs());
@@ -83,7 +83,7 @@ int main()
         {
             float colour = RAND_BETWEEN(100, 200);
             m.addEntityComponent<Position>(e, Position(RAND_BETWEEN(0, 512), RAND_BETWEEN(0, 512)));
-            m.addEntityComponent<Velocity>(e, Velocity(RAND_BETWEEN(5.0, 10.0), RAND_BETWEEN(0, 2 * 3.142)));
+            m.addEntityComponent<Velocity>(e, Velocity(RAND_BETWEEN(50.0, 100.0), RAND_BETWEEN(0, 2 * 3.142)));
             m.addEntityComponent<Size>(e, Size(RAND_BETWEEN(10.0, 15.0)));
             m.addEntityComponent<Render>(e, Render(colour, colour, colour));
             m.addEntityComponent<Collision>(e, Collision(3, false));
@@ -126,6 +126,9 @@ int main()
     bool quitting = false;
     while(!quitting)
     {
+        // Frame timing
+        clock_t start = clock();
+
         SDL_Event event;
         while(SDL_PollEvent(&event))
         {
@@ -232,7 +235,14 @@ int main()
 
         SDL_GL_SwapWindow(window);
 
-        SDL_Delay(2);
+        // Frame timing
+        clock_t end = clock();
+        double timeTaken = (double)(end-start)/CLOCKS_PER_SEC;
+
+        if(timeTaken < 1.0/60)
+        {
+            SDL_Delay((1.0/60 - timeTaken)*1000);
+        }
     }
 
     SDL_DestroyWindow(window);

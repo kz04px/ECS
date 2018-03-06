@@ -181,7 +181,7 @@ class WeaponSystem : public System
 
                 if(a->use == true && b->timeLeft <= 0.0)
                 {
-                    b->timeLeft = 1.0;
+                    b->timeLeft = 0.1;
 
                     Entity newEntity = manager->em.getEntity();
                     if(newEntity != invalidEntity)
@@ -199,10 +199,10 @@ class WeaponSystem : public System
                         {
                             // Laser
                             manager->addEntityComponent<Position>(newEntity, Position(x, y));
-                            manager->addEntityComponent<Velocity>(newEntity, Velocity(20.0, dir));
+                            manager->addEntityComponent<Velocity>(newEntity, Velocity(200.0, dir));
                             manager->addEntityComponent<Render>(newEntity, Render(0,255,0));
                             manager->addEntityComponent<Size>(newEntity, Size(1.0));
-                            manager->addEntityComponent<Timer>(newEntity, Timer(20.0));
+                            manager->addEntityComponent<Timer>(newEntity, Timer(1.0));
                             manager->addEntityComponent<Remove>(newEntity, Remove());
                             manager->addEntityComponent<Projectile>(newEntity, Projectile(0));
                             manager->addEntityComponent<Collision>(newEntity, Collision(2, true));
@@ -212,10 +212,10 @@ class WeaponSystem : public System
                         {
                             // Rocket
                             manager->addEntityComponent<Position>(newEntity, Position(x, y));
-                            manager->addEntityComponent<Velocity>(newEntity, Velocity(5.0, dir));
+                            manager->addEntityComponent<Velocity>(newEntity, Velocity(50.0, dir));
                             manager->addEntityComponent<Render>(newEntity, Render(255,0,0));
                             manager->addEntityComponent<Size>(newEntity, Size(2.0));
-                            manager->addEntityComponent<Timer>(newEntity, Timer(50.0));
+                            manager->addEntityComponent<Timer>(newEntity, Timer(2.0));
                             manager->addEntityComponent<Remove>(newEntity, Remove());
                             manager->addEntityComponent<Projectile>(newEntity, Projectile(1));
                             manager->addEntityComponent<Collision>(newEntity, Collision(2, true));
@@ -390,7 +390,7 @@ class DamageSystem : public System
                 if(c->collided == true && h->immunity <= 0.0)
                 {
                     h->health--;
-                    h->immunity = 1.0;
+                    h->immunity = 0.1;
 
                     if(h->health <= 0)
                     {
@@ -447,7 +447,7 @@ class AsteroidSystem : public System
                         if(newEntity != invalidEntity)
                         {
                             manager->addEntityComponent<Position>(newEntity, Position(pos->x, pos->y));
-                            manager->addEntityComponent<Velocity>(newEntity, Velocity(RAND_BETWEEN(5.0, 10.0), RAND_BETWEEN(0, 2 * 3.142)));
+                            manager->addEntityComponent<Velocity>(newEntity, Velocity(RAND_BETWEEN(50.0, 100.0), RAND_BETWEEN(0, 2 * 3.142)));
                             manager->addEntityComponent<Size>(newEntity, Size(size->radius/2));
                             manager->addEntityComponent<Render>(newEntity, Render(colour, colour, colour));
                             manager->addEntityComponent<Collision>(newEntity, Collision(3, false));
@@ -464,10 +464,17 @@ class AsteroidSystem : public System
                         if(newEntity != invalidEntity)
                         {
                             manager->addEntityComponent<Position>(newEntity, Position(pos->x, pos->y));
-                            manager->addEntityComponent<Velocity>(newEntity, Velocity(RAND_BETWEEN(15.0, 30.0), RAND_BETWEEN(0, 2 * 3.142)));
+                            manager->addEntityComponent<Velocity>(newEntity, Velocity(RAND_BETWEEN(150.0, 300.0), RAND_BETWEEN(0, 2 * 3.142)));
                             manager->addEntityComponent<Size>(newEntity, Size(1.0));
-                            manager->addEntityComponent<Render>(newEntity, Render(220, 20, 20));
-                            manager->addEntityComponent<Timer>(newEntity, Timer(3 + rand()%5));
+                            if(rand()%2 == 0)
+                            {
+                                manager->addEntityComponent<Render>(newEntity, Render(220, 20, 20));
+                            }
+                            else
+                            {
+                                manager->addEntityComponent<Render>(newEntity, Render(220, 140, 20));
+                            }
+                            manager->addEntityComponent<Timer>(newEntity, Timer(0.5));
                             manager->addEntityComponent<Remove>(newEntity, Remove());
                         }
                     }
