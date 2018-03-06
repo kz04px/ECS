@@ -2,7 +2,7 @@ CC         = g++
 CFLAGS     = -std=c++14 -Wall -Wextra
 
 LINKER     = g++ -o
-LFLAGS     = -lGL -lSDL2
+LFLAGS     = -lGL -lSDL2 -lSDL2_image
 
 TARGET     = main
 SRCDIR     = src
@@ -30,4 +30,3 @@ clean:
 	rm -r $(OBJDIR)
 
 .PHONY: clean
-

@@ -43,11 +43,12 @@ class MovementSystem : public System
 class RenderSystem : public System
 {
     public:
-        explicit RenderSystem(SDL_Renderer *r) : renderer(r)
+        RenderSystem(SDL_Renderer *r, SDL_Texture *shipTexture) : renderer(r), shipTexture(shipTexture)
         {
             required.insert(Position::id);
             required.insert(Render::id);
             required.insert(Size::id);
+            required.insert(Rotation::id);
         }
         void update(const float dt)
         {
@@ -57,12 +58,14 @@ class RenderSystem : public System
             auto &p = manager->cm.getStore<Position>();
             auto &s = manager->cm.getStore<Size>();
             auto &r = manager->cm.getStore<Render>();
+            auto &rotation = manager->cm.getStore<Rotation>();
 
             for(auto e : entities)
             {
                 auto a = p.getComponent(e);
                 auto b = s.getComponent(e);
                 auto c = r.getComponent(e);
+                auto d = rotation.getComponent(e);
 
                 SDL_SetRenderDrawColor(renderer, c->red, c->green, c->blue, 255);
 
@@ -75,13 +78,23 @@ class RenderSystem : public System
                         rect.y = a->y - b->radius + y*512;
                         rect.w = 2 * b->radius;
                         rect.h = 2 * b->radius;
-                        SDL_RenderFillRect(renderer, &rect);
+
+                        if(c->texture == 1)
+                        {
+                            SDL_Point center = {b->radius, b->radius};
+                            SDL_RenderCopyEx(renderer, shipTexture, NULL, &rect, d->radians*180/3.142 - 90, &center, SDL_FLIP_NONE);
+                        }
+                        else
+                        {
+                            SDL_RenderFillRect(renderer, &rect);
+                        }
                     }
                 }
             }
         }
     private:
         SDL_Renderer *renderer;
+        SDL_Texture *shipTexture;
 };
 
 
@@ -92,19 +105,28 @@ class InputSystem : public System
         {
             required.insert(Position::id);
             required.insert(Velocity::id);
+            required.insert(Rotation::id);
             required.insert(Inputs::id);
         }
         void update(const float dt)
         {
             assert(manager != NULL);
 
+            auto &positionStore = manager->cm.getStore<Position>();
             auto &velocityStore = manager->cm.getStore<Velocity>();
             auto &inputsStore   = manager->cm.getStore<Inputs>();
+            auto &rotationStore = manager->cm.getStore<Rotation>();
 
             for(auto e : entities)
             {
                 auto a = velocityStore.getComponent(e);
                 auto b = inputsStore.getComponent(e);
+                auto c = rotationStore.getComponent(e);
+                auto d = positionStore.getComponent(e);
+
+                float dx = b->mouseX - d->x;
+                float dy = b->mouseY - d->y;
+                c->radians = atan2(-dy, -dx);
 
                 if(b->left == true)       {a->x -= 0.01;}
                 else if(b->right == true) {a->x += 0.01;}
@@ -192,8 +214,8 @@ class WeaponSystem : public System
                         float dy = a->mouseY - pos->y;
                         float dir = atan2(dy, dx);
 
-                        float x = pos->x + 15*cos(dir);
-                        float y = pos->y + 15*sin(dir);
+                        float x = pos->x + 25*cos(dir);
+                        float y = pos->y + 25*sin(dir);
 
                         if(a->selected == 0)
                         {
@@ -207,6 +229,7 @@ class WeaponSystem : public System
                             manager->addEntityComponent<Projectile>(newEntity, Projectile(0));
                             manager->addEntityComponent<Collision>(newEntity, Collision(2, true));
                             manager->addEntityComponent<Health>(newEntity, Health());
+                            manager->addEntityComponent<Rotation>(newEntity, Rotation());
                         }
                         else if(a->selected == 1)
                         {
@@ -220,6 +243,7 @@ class WeaponSystem : public System
                             manager->addEntityComponent<Projectile>(newEntity, Projectile(1));
                             manager->addEntityComponent<Collision>(newEntity, Collision(2, true));
                             manager->addEntityComponent<Health>(newEntity, Health());
+                            manager->addEntityComponent<Rotation>(newEntity, Rotation());
                         }
                     }
                 }
@@ -454,6 +478,7 @@ class AsteroidSystem : public System
                             manager->addEntityComponent<Health>(newEntity, Health(health->startHealth - 1));
                             manager->addEntityComponent<Remove>(newEntity, Remove());
                             manager->addEntityComponent<Asteroid>(newEntity, Asteroid());
+                            manager->addEntityComponent<Rotation>(newEntity, Rotation());
                         }
                     }
 
@@ -476,6 +501,7 @@ class AsteroidSystem : public System
                             }
                             manager->addEntityComponent<Timer>(newEntity, Timer(0.5));
                             manager->addEntityComponent<Remove>(newEntity, Remove());
+                            manager->addEntityComponent<Rotation>(newEntity, Rotation());
                         }
                     }
                 }

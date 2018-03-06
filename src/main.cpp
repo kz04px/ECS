@@ -5,6 +5,7 @@
 #include "systems.hpp"
 #include <SDL.h>
 #include <SDL_opengl.h>
+#include <SDL_image.h>
 #include <ctime>
 
 
@@ -31,6 +32,11 @@ int main()
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 
+    SDL_Surface* loadedSurface = IMG_Load("ship.png");
+    SDL_Texture* shipTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+    SDL_FreeSurface(loadedSurface);
+
+
     auto m = Manager();
 
     // Components have to be created to be used
@@ -46,11 +52,12 @@ int main()
     m.createComponent<Collision>();
     m.createComponent<Health>();
     m.createComponent<Asteroid>();
+    m.createComponent<Rotation>();
 
     // Systems have to be created to run
     auto inputSystem = new InputSystem();
     m.createSystem<MovementSystem>(new MovementSystem());
-    m.createSystem<RenderSystem>(new RenderSystem(renderer));
+    m.createSystem<RenderSystem>(new RenderSystem(renderer, shipTexture));
     m.createSystem<InputSystem>(inputSystem);
     m.createSystem<RemoveSystem>(new RemoveSystem());
     m.createSystem<WeaponSystem>(new WeaponSystem());
@@ -65,18 +72,19 @@ int main()
     if(playerEntity != invalidEntity)
     {
         m.addEntityComponent<Position>(playerEntity, Position(RAND_BETWEEN(0.25*512, 0.75*512), RAND_BETWEEN(0.25*512, 0.75*512)));
-        m.addEntityComponent<Velocity>(playerEntity, Velocity(80.0, 0.0));
-        m.addEntityComponent<Size>(playerEntity, Size(5.0));
-        m.addEntityComponent<Render>(playerEntity, Render(0,0,255));
+        m.addEntityComponent<Velocity>(playerEntity, Velocity(80.0));
+        m.addEntityComponent<Size>(playerEntity, Size(15.0));
+        m.addEntityComponent<Render>(playerEntity, Render(1));
         m.addEntityComponent<Inputs>(playerEntity, Inputs());
         m.addEntityComponent<Weapon>(playerEntity, Weapon());
         m.addEntityComponent<Collision>(playerEntity, Collision(1, true));
         m.addEntityComponent<Health>(playerEntity, Health(3));
         m.addEntityComponent<Remove>(playerEntity, Remove());
+        m.addEntityComponent<Rotation>(playerEntity, Rotation());
     }
 
     // Add the asteroids
-    for(int i = 0; i < 20; ++i)
+    for(int i = 0; i < 10; ++i)
     {
         Entity e = m.em.getEntity();
         if(e != invalidEntity)
@@ -90,6 +98,7 @@ int main()
             m.addEntityComponent<Health>(e, Health(2));
             m.addEntityComponent<Remove>(e, Remove());
             m.addEntityComponent<Asteroid>(e, Asteroid());
+            m.addEntityComponent<Rotation>(e, Rotation());
         }
     }
 
@@ -245,6 +254,7 @@ int main()
         }
     }
 
+    SDL_DestroyTexture(shipTexture);
     SDL_DestroyWindow(window);
     SDL_Quit();
 

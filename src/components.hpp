@@ -22,11 +22,31 @@ class Position
 };
 
 
+class Rotation
+{
+    public:
+        Rotation() : radians(0.0)
+        {
+        }
+        explicit Rotation(float radians) : radians(radians)
+        {
+        }
+        static const Component id;
+        float radians;
+    private:
+};
+
+
 class Velocity
 {
     public:
-        Velocity() : speed(0.0), x(0.0), y(1.0) {}
-        explicit Velocity(float s, float dir) : speed(s), x(cos(dir)), y(sin(dir))
+        Velocity() : speed(0.0), x(0.0), y(1.0)
+        {
+        }
+        explicit Velocity(float s) : speed(s), x(0.0), y(0.0)
+        {
+        }
+        Velocity(float s, float dir) : speed(s), x(cos(dir)), y(sin(dir))
         {
         }
         static const Component id;
@@ -53,14 +73,20 @@ class Size
 class Render
 {
     public:
-        Render() : red(255), green(0), blue(0) {}
-        Render(int r, int g, int b) : red(r), green(g), blue(b)
+        Render() : red(255), green(0), blue(0), texture(0)
+        {
+        }
+        Render(int texture) : red(255), green(0), blue(0), texture(texture)
+        {
+        }
+        Render(int r, int g, int b) : red(r), green(g), blue(b), texture(0)
         {
         }
         static const Component id;
         int red;
         int green;
         int blue;
+        int texture;
     private:
 };
 
@@ -195,6 +221,7 @@ const Component Projectile::id = 8;
 const Component Collision::id = 9;
 const Component Health::id = 10;
 const Component Asteroid::id = 11;
+const Component Rotation::id = 12;
 
 
 #endif
