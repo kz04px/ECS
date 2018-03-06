@@ -36,23 +36,29 @@ int main()
     // Components have to be created to be used
     m.createComponent<Position>();
     m.createComponent<Velocity>();
-    m.createComponent<Health>();
+    m.createComponent<Size>();
     m.createComponent<Render>();
     m.createComponent<Inputs>();
-    m.createComponent<Size>();
+    m.createComponent<Weapon>();
+    m.createComponent<Timer>();
+    m.createComponent<Remove>();
+    m.createComponent<Projectile>();
     m.createComponent<Collision>();
-    m.createComponent<Inventory>();
-    m.createComponent<Use>();
+    m.createComponent<Health>();
+    m.createComponent<Asteroid>();
 
     // Systems have to be created to run
     auto inputSystem = new InputSystem();
     m.createSystem<MovementSystem>(new MovementSystem());
-    m.createSystem<DamageSystem>(new DamageSystem());
     m.createSystem<RenderSystem>(new RenderSystem(renderer));
     m.createSystem<InputSystem>(inputSystem);
-    m.createSystem<DeathSystem>(new DeathSystem());
+    m.createSystem<RemoveSystem>(new RemoveSystem());
+    m.createSystem<WeaponSystem>(new WeaponSystem());
+    m.createSystem<TimerSystem>(new TimerSystem());
     m.createSystem<CollisionSystem>(new CollisionSystem());
-    m.createSystem<ItemSystem>(new ItemSystem());
+    m.createSystem<DamageSystem>(new DamageSystem());
+    m.createSystem<HealthSystem>(new HealthSystem());
+    m.createSystem<AsteroidSystem>(new AsteroidSystem());
 
     // Add the player
     Entity playerEntity = m.em.getEntity();
@@ -60,34 +66,13 @@ int main()
     {
         m.addEntityComponent<Position>(playerEntity, Position(RAND_BETWEEN(0.25*512, 0.75*512), RAND_BETWEEN(0.25*512, 0.75*512)));
         m.addEntityComponent<Velocity>(playerEntity, Velocity(8.0, 0.0));
+        m.addEntityComponent<Size>(playerEntity, Size(5.0));
         m.addEntityComponent<Render>(playerEntity, Render(0,0,255));
         m.addEntityComponent<Inputs>(playerEntity, Inputs());
-        m.addEntityComponent<Size>(playerEntity, Size(5.0));
-        m.addEntityComponent<Health>(playerEntity, Health());
-        m.addEntityComponent<Collision>(playerEntity, Collision());
-        m.addEntityComponent<Inventory>(playerEntity, Inventory());
-    }
-
-    // Add a laser item
-    Entity laserEntity = m.em.getEntity();
-    if(laserEntity != invalidEntity)
-    {
-        m.addEntityComponent<Use>(laserEntity, Use(-1, 1.0));
-
-        // Give the laser to the player
-        auto a = m.getEntityComponent<Inventory>(playerEntity);
-        a->items.push_back(laserEntity);
-    }
-
-    // Add a rocket item
-    Entity rocketEntity = m.em.getEntity();
-    if(rocketEntity != invalidEntity)
-    {
-        m.addEntityComponent<Use>(rocketEntity, Use(-1, 5.0));
-
-        // Give the rocket to the player
-        auto a = m.getEntityComponent<Inventory>(playerEntity);
-        a->items.push_back(rocketEntity);
+        m.addEntityComponent<Weapon>(playerEntity, Weapon());
+        m.addEntityComponent<Collision>(playerEntity, Collision(1, true));
+        m.addEntityComponent<Health>(playerEntity, Health(3));
+        m.addEntityComponent<Remove>(playerEntity, Remove());
     }
 
     // Add the asteroids
@@ -99,8 +84,12 @@ int main()
             float colour = RAND_BETWEEN(100, 200);
             m.addEntityComponent<Position>(e, Position(RAND_BETWEEN(0, 512), RAND_BETWEEN(0, 512)));
             m.addEntityComponent<Velocity>(e, Velocity(RAND_BETWEEN(5.0, 10.0), RAND_BETWEEN(0, 2 * 3.142)));
-            m.addEntityComponent<Render>(e, Render(colour, colour, colour));
             m.addEntityComponent<Size>(e, Size(RAND_BETWEEN(10.0, 15.0)));
+            m.addEntityComponent<Render>(e, Render(colour, colour, colour));
+            m.addEntityComponent<Collision>(e, Collision(3, false));
+            m.addEntityComponent<Health>(e, Health(2));
+            m.addEntityComponent<Remove>(e, Remove());
+            m.addEntityComponent<Asteroid>(e, Asteroid());
         }
     }
 

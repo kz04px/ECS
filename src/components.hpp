@@ -37,17 +37,15 @@ class Velocity
 };
 
 
-class Health
+class Size
 {
     public:
-        Health() : health(1), timeSinceDamaged(0.0), timeAlive(0.0), dead(false)
+        Size() : radius(1.0) {}
+        explicit Size(float r) : radius(r)
         {
         }
         static const Component id;
-        int health;
-        float timeSinceDamaged;
-        float timeAlive;
-        bool dead;
+        float radius;
     private:
 };
 
@@ -86,15 +84,56 @@ class Inputs
 };
 
 
-class Size
+class Remove
 {
     public:
-        Size() : radius(1.0) {}
-        explicit Size(float r) : radius(r)
+        Remove() : remove(false)
         {
         }
         static const Component id;
-        float radius;
+        bool remove;
+    private:
+};
+
+
+class Weapon
+{
+    public:
+        Weapon() : timeLeft(0.0)
+        {
+        }
+        static const Component id;
+        float timeLeft;
+    private:
+};
+
+
+class Timer
+{
+    public:
+        Timer() : timeLeft(3.0)
+        {
+        }
+        explicit Timer(float timeLeft) : timeLeft(timeLeft)
+        {
+        }
+        static const Component id;
+        float timeLeft;
+    private:
+};
+
+
+class Projectile
+{
+    public:
+        Projectile() : type(0)
+        {
+        }
+        explicit Projectile(int type) : type(type)
+        {
+        }
+        static const Component id;
+        int type;
     private:
 };
 
@@ -102,53 +141,60 @@ class Size
 class Collision
 {
     public:
-        Collision() : collision(false)
+        Collision() : collided(false), mask(0xFF)
+        {
+        }
+        Collision(uint8_t mask, bool self) : collided(false), mask(mask), self(self)
         {
         }
         static const Component id;
-        bool collision;
+        bool collided;
+        uint8_t mask;
+        bool self;
     private:
 };
 
 
-class Inventory
+class Health
 {
     public:
-        Inventory() : items({})
+        Health() : startHealth(1), health(1), immunity(0.0)
+        {
+        }
+        explicit Health(int health) : startHealth(health), health(health), immunity(0.0)
         {
         }
         static const Component id;
-        std::vector<Entity> items;
+        int startHealth;
+        int health;
+        float immunity;
     private:
 };
 
 
-class Use
+class Asteroid
 {
     public:
-        Use() : uses(-1), lastUsed(0.0), cooldown(1.0)
-        {
-        }
-        Use(int amount, float cooldown) : uses(amount), lastUsed(0.0), cooldown(cooldown)
+        Asteroid()
         {
         }
         static const Component id;
-        int uses;
-        float lastUsed;
-        float cooldown;
     private:
 };
 
 
 const Component Position::id = 0;
 const Component Velocity::id = 1;
-const Component Health::id = 2;
+const Component Size::id = 2;
 const Component Render::id = 3;
 const Component Inputs::id = 4;
-const Component Size::id = 5;
-const Component Collision::id = 6;
-const Component Inventory::id = 7;
-const Component Use::id = 8;
+const Component Remove::id = 5;
+const Component Weapon::id = 6;
+const Component Timer::id = 7;
+const Component Projectile::id = 8;
+const Component Collision::id = 9;
+const Component Health::id = 10;
+const Component Asteroid::id = 11;
 
 
 #endif
