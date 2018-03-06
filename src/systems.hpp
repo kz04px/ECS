@@ -128,15 +128,15 @@ class InputSystem : public System
                 float dy = b->mouseY - d->y;
                 c->radians = atan2(-dy, -dx);
 
-                if(b->left == true)       {a->x -= 0.01;}
-                else if(b->right == true) {a->x += 0.01;}
-                if(b->up == true)         {a->y -= 0.01;}
-                else if(b->down == true)  {a->y += 0.01;}
+                if(b->left == true)       {a->x -= 0.05;}
+                else if(b->right == true) {a->x += 0.05;}
+                if(b->up == true)         {a->y -= 0.05;}
+                else if(b->down == true)  {a->y += 0.05;}
 
-                if(a->x > 1.0)       {a->x =  1.0;}
-                else if(a->x < -1.0) {a->x = -1.0;}
-                if(a->y > 1.0)       {a->y =  1.0;}
-                else if(a->y < -1.0) {a->y = -1.0;}
+                if(a->x > 5.0)       {a->x =  5.0;}
+                else if(a->x < -5.0) {a->x = -5.0;}
+                if(a->y > 5.0)       {a->y =  5.0;}
+                else if(a->y < -5.0) {a->y = -5.0;}
             }
         }
     private:
