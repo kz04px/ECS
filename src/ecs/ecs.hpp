@@ -10,7 +10,7 @@
 class Manager
 {
     public:
-        Manager() : em(EntityManager()), cm(ComponentManager()), sm(SystemManager())
+        Manager() : em(EntityManager()), cm(ComponentManager()), sm(SystemManager()), remove({})
         {
         }
         void print()
@@ -49,9 +49,20 @@ class Manager
             t->manager = this;
             sm.addSystem<T>(t);
         }
+        void update(const float dt)
+        {
+            sm.update(dt);
+            for(auto e : remove)
+            {
+                em.removeEntity(e);
+                cm.removeEntity(e);
+                sm.removeEntity(e);
+            }
+        }
         EntityManager em;
         ComponentManager cm;
         SystemManager sm;
+        std::vector<Entity> remove;
     private:
 };
 

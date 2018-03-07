@@ -143,35 +143,6 @@ class InputSystem : public System
 };
 
 
-class RemoveSystem : public System
-{
-    public:
-        RemoveSystem()
-        {
-            required.insert(Remove::id);
-        }
-        void update(const float dt)
-        {
-            assert(manager != NULL);
-
-            auto &removeStore = manager->cm.getStore<Remove>();
-
-            for(auto e : entities)
-            {
-                auto a = removeStore.getComponent(e);
-
-                if(a->remove == true)
-                {
-                    manager->em.removeEntity(e);
-                    manager->cm.removeEntity(e);
-                    manager->sm.removeEntity(e);
-                }
-            }
-        }
-    private:
-};
-
-
 class WeaponSystem : public System
 {
     public:
@@ -225,7 +196,6 @@ class WeaponSystem : public System
                             manager->addEntityComponent<Render>(newEntity, Render(0,255,0));
                             manager->addEntityComponent<Size>(newEntity, Size(1.0));
                             manager->addEntityComponent<Timer>(newEntity, Timer(1.0));
-                            manager->addEntityComponent<Remove>(newEntity, Remove());
                             manager->addEntityComponent<Projectile>(newEntity, Projectile(0));
                             manager->addEntityComponent<Collision>(newEntity, Collision(2, true));
                             manager->addEntityComponent<Health>(newEntity, Health());
@@ -239,7 +209,6 @@ class WeaponSystem : public System
                             manager->addEntityComponent<Render>(newEntity, Render(255,0,0));
                             manager->addEntityComponent<Size>(newEntity, Size(2.0));
                             manager->addEntityComponent<Timer>(newEntity, Timer(2.0));
-                            manager->addEntityComponent<Remove>(newEntity, Remove());
                             manager->addEntityComponent<Projectile>(newEntity, Projectile(1));
                             manager->addEntityComponent<Collision>(newEntity, Collision(2, true));
                             manager->addEntityComponent<Health>(newEntity, Health());
@@ -281,25 +250,22 @@ class TimerSystem : public System
         TimerSystem()
         {
             required.insert(Timer::id);
-            required.insert(Remove::id);
         }
         void update(const float dt)
         {
             assert(manager != NULL);
 
             auto &timerStore = manager->cm.getStore<Timer>();
-            auto &removeStore = manager->cm.getStore<Remove>();
 
             for(auto e : entities)
             {
                 auto a = timerStore.getComponent(e);
-                auto b = removeStore.getComponent(e);
 
                 a->timeLeft -= dt;
 
                 if(a->timeLeft <= 0.0)
                 {
-                    b->remove = true;
+                    manager->remove.push_back(e);
                 }
             }
         }
@@ -396,7 +362,6 @@ class DamageSystem : public System
         {
             required.insert(Health::id);
             required.insert(Collision::id);
-            required.insert(Remove::id);
         }
         void update(const float dt)
         {
@@ -404,7 +369,6 @@ class DamageSystem : public System
 
             auto &collisionStore = manager->cm.getStore<Collision>();
             auto &healthStore = manager->cm.getStore<Health>();
-            auto &removeStore = manager->cm.getStore<Remove>();
 
             for(auto e : entities)
             {
@@ -418,8 +382,7 @@ class DamageSystem : public System
 
                     if(h->health <= 0)
                     {
-                        auto r = removeStore.getComponent(e);
-                        r->remove = true;
+                        manager->remove.push_back(e);
                     }
                 }
             }
@@ -434,12 +397,8 @@ class AsteroidSystem : public System
         AsteroidSystem()
         {
             required.insert(Position::id);
-            required.insert(Velocity::id);
             required.insert(Size::id);
-            required.insert(Render::id);
-            required.insert(Collision::id);
             required.insert(Health::id);
-            required.insert(Remove::id);
             required.insert(Asteroid::id);
         }
         void update(const float dt)
@@ -447,22 +406,17 @@ class AsteroidSystem : public System
             assert(manager != NULL);
 
             auto &positionStore = manager->cm.getStore<Position>();
-            auto &velocityStore = manager->cm.getStore<Velocity>();
             auto &sizeStore = manager->cm.getStore<Size>();
-            auto &renderStore = manager->cm.getStore<Render>();
             auto &healthStore = manager->cm.getStore<Health>();
-            auto &removeStore = manager->cm.getStore<Remove>();
 
             for(auto e : entities)
             {
-                auto remove = removeStore.getComponent(e);
+                auto health = healthStore.getComponent(e);
                 auto size = sizeStore.getComponent(e);
 
-                if(remove->remove == true && size->radius >= 6.0)
+                if(health->health <= 0 && size->radius >= 6.0)
                 {
-                    int colour = renderStore.getComponent(e)->red;
                     auto pos = positionStore.getComponent(e);
-                    auto health = healthStore.getComponent(e);
 
                     // New asteroids
                     for(int i = 0; i < rand()%2+3; ++i)
@@ -470,13 +424,13 @@ class AsteroidSystem : public System
                         Entity newEntity = manager->em.getEntity();
                         if(newEntity != invalidEntity)
                         {
+                            int colour = RAND_BETWEEN(100, 200);
                             manager->addEntityComponent<Position>(newEntity, Position(pos->x, pos->y));
                             manager->addEntityComponent<Velocity>(newEntity, Velocity(RAND_BETWEEN(50.0, 100.0), RAND_BETWEEN(0, 2 * 3.142)));
                             manager->addEntityComponent<Size>(newEntity, Size(size->radius/2));
                             manager->addEntityComponent<Render>(newEntity, Render(colour, colour, colour));
                             manager->addEntityComponent<Collision>(newEntity, Collision(3, false));
                             manager->addEntityComponent<Health>(newEntity, Health(health->startHealth - 1));
-                            manager->addEntityComponent<Remove>(newEntity, Remove());
                             manager->addEntityComponent<Asteroid>(newEntity, Asteroid());
                             manager->addEntityComponent<Rotation>(newEntity, Rotation());
                         }
@@ -500,7 +454,6 @@ class AsteroidSystem : public System
                                 manager->addEntityComponent<Render>(newEntity, Render(220, 140, 20));
                             }
                             manager->addEntityComponent<Timer>(newEntity, Timer(0.5));
-                            manager->addEntityComponent<Remove>(newEntity, Remove());
                             manager->addEntityComponent<Rotation>(newEntity, Rotation());
                         }
                     }

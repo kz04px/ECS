@@ -214,14 +214,13 @@ const Component Velocity::id = 1;
 const Component Size::id = 2;
 const Component Render::id = 3;
 const Component Inputs::id = 4;
-const Component Remove::id = 5;
-const Component Weapon::id = 6;
-const Component Timer::id = 7;
-const Component Projectile::id = 8;
-const Component Collision::id = 9;
-const Component Health::id = 10;
-const Component Asteroid::id = 11;
-const Component Rotation::id = 12;
+const Component Weapon::id = 5;
+const Component Timer::id = 6;
+const Component Projectile::id = 7;
+const Component Collision::id = 8;
+const Component Health::id = 9;
+const Component Asteroid::id = 10;
+const Component Rotation::id = 11;
 
 
 #endif

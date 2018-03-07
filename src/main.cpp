@@ -47,7 +47,6 @@ int main()
     m.createComponent<Inputs>();
     m.createComponent<Weapon>();
     m.createComponent<Timer>();
-    m.createComponent<Remove>();
     m.createComponent<Projectile>();
     m.createComponent<Collision>();
     m.createComponent<Health>();
@@ -59,7 +58,6 @@ int main()
     m.createSystem<MovementSystem>(new MovementSystem());
     m.createSystem<RenderSystem>(new RenderSystem(renderer, shipTexture));
     m.createSystem<InputSystem>(inputSystem);
-    m.createSystem<RemoveSystem>(new RemoveSystem());
     m.createSystem<WeaponSystem>(new WeaponSystem());
     m.createSystem<TimerSystem>(new TimerSystem());
     m.createSystem<CollisionSystem>(new CollisionSystem());
@@ -79,7 +77,6 @@ int main()
         m.addEntityComponent<Weapon>(playerEntity, Weapon());
         m.addEntityComponent<Collision>(playerEntity, Collision(1, true));
         m.addEntityComponent<Health>(playerEntity, Health(3));
-        m.addEntityComponent<Remove>(playerEntity, Remove());
         m.addEntityComponent<Rotation>(playerEntity, Rotation());
     }
 
@@ -96,7 +93,6 @@ int main()
             m.addEntityComponent<Render>(e, Render(colour, colour, colour));
             m.addEntityComponent<Collision>(e, Collision(3, false));
             m.addEntityComponent<Health>(e, Health(2));
-            m.addEntityComponent<Remove>(e, Remove());
             m.addEntityComponent<Asteroid>(e, Asteroid());
             m.addEntityComponent<Rotation>(e, Rotation());
         }
@@ -240,7 +236,7 @@ int main()
         a->mouseY = y;
         a->selected = selected;
 
-        m.sm.update(1.0/60);
+        m.update(1.0/60);
 
         SDL_GL_SwapWindow(window);
 
