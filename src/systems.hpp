@@ -190,13 +190,13 @@ class WeaponSystem : public System
 
                         if(a->selected == 0)
                         {
-                            // Laser
+                            // Bullet
                             manager->addEntityComponent<Position>(newEntity, Position(x, y));
                             manager->addEntityComponent<Velocity>(newEntity, Velocity(200.0, dir));
                             manager->addEntityComponent<Render>(newEntity, Render(0,255,0));
                             manager->addEntityComponent<Size>(newEntity, Size(1.0));
                             manager->addEntityComponent<Timer>(newEntity, Timer(1.0));
-                            manager->addEntityComponent<Projectile>(newEntity, Projectile(0));
+                            manager->addEntityComponent<Projectile>(newEntity, Projectile(1));
                             manager->addEntityComponent<Collision>(newEntity, Collision(2, true));
                             manager->addEntityComponent<Health>(newEntity, Health());
                             manager->addEntityComponent<Rotation>(newEntity, Rotation());
@@ -209,7 +209,7 @@ class WeaponSystem : public System
                             manager->addEntityComponent<Render>(newEntity, Render(255,0,0));
                             manager->addEntityComponent<Size>(newEntity, Size(2.0));
                             manager->addEntityComponent<Timer>(newEntity, Timer(2.0));
-                            manager->addEntityComponent<Projectile>(newEntity, Projectile(1));
+                            manager->addEntityComponent<Rocket>(newEntity, Rocket(2, 1.0));
                             manager->addEntityComponent<Collision>(newEntity, Collision(2, true));
                             manager->addEntityComponent<Health>(newEntity, Health());
                             manager->addEntityComponent<Rotation>(newEntity, Rotation());
@@ -238,6 +238,38 @@ class ProjectileSystem : public System
             for(auto e : entities)
             {
                 auto a = projectileStore.getComponent(e);
+            }
+        }
+    private:
+};
+
+
+class RocketSystem : public System
+{
+    public:
+        RocketSystem()
+        {
+            required.insert(Rocket::id);
+            required.insert(Velocity::id);
+        }
+        void update(const float dt)
+        {
+            assert(manager != NULL);
+
+            auto &rocketStore = manager->cm.getStore<Rocket>();
+            auto &velocityStore = manager->cm.getStore<Velocity>();
+
+            for(auto e : entities)
+            {
+                auto r = rocketStore.getComponent(e);
+
+                r->boostTimeLeft -= dt;
+
+                if(r->boostTimeLeft <= 0.0 && r->boostTimeLeft + dt > 0.0)
+                {
+                    auto v = velocityStore.getComponent(e);
+                    v->speed *= 5;
+                }
             }
         }
     private:

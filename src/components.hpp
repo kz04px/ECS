@@ -152,14 +152,30 @@ class Timer
 class Projectile
 {
     public:
-        Projectile() : type(0)
+        Projectile() : damage(1)
         {
         }
-        explicit Projectile(int type) : type(type)
+        explicit Projectile(int damage) : damage(damage)
         {
         }
         static const Component id;
-        int type;
+        int damage;
+    private:
+};
+
+
+class Rocket
+{
+    public:
+        Rocket() : damage(1), boostTimeLeft(1.0)
+        {
+        }
+        explicit Rocket(int d, float t) : damage(d), boostTimeLeft(t)
+        {
+        }
+        static const Component id;
+        int damage;
+        float boostTimeLeft;
     private:
 };
 
@@ -221,6 +237,7 @@ const Component Collision::id = 8;
 const Component Health::id = 9;
 const Component Asteroid::id = 10;
 const Component Rotation::id = 11;
+const Component Rocket::id = 12;
 
 
 #endif

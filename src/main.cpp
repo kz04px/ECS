@@ -52,6 +52,7 @@ int main()
     m.createComponent<Health>();
     m.createComponent<Asteroid>();
     m.createComponent<Rotation>();
+    m.createComponent<Rocket>();
 
     // Systems have to be created to run
     auto inputSystem = new InputSystem();
@@ -64,6 +65,7 @@ int main()
     m.createSystem<DamageSystem>(new DamageSystem());
     m.createSystem<HealthSystem>(new HealthSystem());
     m.createSystem<AsteroidSystem>(new AsteroidSystem());
+    m.createSystem<RocketSystem>(new RocketSystem());
 
     // Add the player
     Entity playerEntity = m.em.getEntity();
