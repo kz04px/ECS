@@ -8,31 +8,19 @@
 #define RAND_BETWEEN(a, b) ((double)rand()/RAND_MAX * (b-a) + a)
 
 
-class Position
+class Transform
 {
     public:
-        Position() : x(0.0), y(0.0) {}
-        Position(float a, float b) : x(a), y(b)
+        Transform() : x(0.0), y(0.0), rotation(0.0)
+        {
+        }
+        Transform(float x, float y, float radians) : x(x), y(y), rotation(radians)
         {
         }
         static const Component id;
         float x;
         float y;
-    private:
-};
-
-
-class Rotation
-{
-    public:
-        Rotation() : radians(0.0)
-        {
-        }
-        explicit Rotation(float radians) : radians(radians)
-        {
-        }
-        static const Component id;
-        float radians;
+        float rotation;
     private:
 };
 
@@ -46,7 +34,7 @@ class Velocity
         explicit Velocity(float s) : speed(s), x(0.0), y(0.0)
         {
         }
-        Velocity(float s, float dir) : speed(s), x(cos(dir)), y(sin(dir))
+        Velocity(float s, float radians) : speed(s), x(cos(radians)), y(sin(radians))
         {
         }
         static const Component id;
@@ -225,7 +213,7 @@ class Asteroid
 };
 
 
-const Component Position::id = 0;
+const Component Transform::id = 0;
 const Component Velocity::id = 1;
 const Component Size::id = 2;
 const Component Render::id = 3;
@@ -236,8 +224,7 @@ const Component Projectile::id = 7;
 const Component Collision::id = 8;
 const Component Health::id = 9;
 const Component Asteroid::id = 10;
-const Component Rotation::id = 11;
-const Component Rocket::id = 12;
+const Component Rocket::id = 11;
 
 
 #endif

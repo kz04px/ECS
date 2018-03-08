@@ -40,7 +40,7 @@ int main()
     auto m = Manager();
 
     // Components have to be created to be used
-    m.createComponent<Position>();
+    m.createComponent<Transform>();
     m.createComponent<Velocity>();
     m.createComponent<Size>();
     m.createComponent<Render>();
@@ -51,7 +51,6 @@ int main()
     m.createComponent<Collision>();
     m.createComponent<Health>();
     m.createComponent<Asteroid>();
-    m.createComponent<Rotation>();
     m.createComponent<Rocket>();
 
     // Systems have to be created to run
@@ -71,15 +70,14 @@ int main()
     Entity playerEntity = m.em.getEntity();
     if(playerEntity != invalidEntity)
     {
-        m.addEntityComponent<Position>(playerEntity, Position(RAND_BETWEEN(0.25*512, 0.75*512), RAND_BETWEEN(0.25*512, 0.75*512)));
-        m.addEntityComponent<Velocity>(playerEntity, Velocity(80.0));
+        m.addEntityComponent<Transform>(playerEntity, Transform(RAND_BETWEEN(0.25*512, 0.75*512), RAND_BETWEEN(0.25*512, 0.75*512), 0.0));
+        m.addEntityComponent<Velocity>(playerEntity, Velocity(80.0, RAND_BETWEEN(0, 2 * 3.142)));
         m.addEntityComponent<Size>(playerEntity, Size(15.0));
         m.addEntityComponent<Render>(playerEntity, Render(1));
         m.addEntityComponent<Inputs>(playerEntity, Inputs());
         m.addEntityComponent<Weapon>(playerEntity, Weapon());
         m.addEntityComponent<Collision>(playerEntity, Collision(1, true));
         m.addEntityComponent<Health>(playerEntity, Health(3));
-        m.addEntityComponent<Rotation>(playerEntity, Rotation());
     }
 
     // Add the asteroids
@@ -89,14 +87,13 @@ int main()
         if(e != invalidEntity)
         {
             float colour = RAND_BETWEEN(100, 200);
-            m.addEntityComponent<Position>(e, Position(RAND_BETWEEN(0, 512), RAND_BETWEEN(0, 512)));
+            m.addEntityComponent<Transform>(e, Transform(RAND_BETWEEN(0, 512), RAND_BETWEEN(0, 512), RAND_BETWEEN(0, 2 * 3.142)));
             m.addEntityComponent<Velocity>(e, Velocity(RAND_BETWEEN(50.0, 100.0), RAND_BETWEEN(0, 2 * 3.142)));
             m.addEntityComponent<Size>(e, Size(RAND_BETWEEN(10.0, 15.0)));
             m.addEntityComponent<Render>(e, Render(colour, colour, colour));
             m.addEntityComponent<Collision>(e, Collision(3, false));
             m.addEntityComponent<Health>(e, Health(2));
             m.addEntityComponent<Asteroid>(e, Asteroid());
-            m.addEntityComponent<Rotation>(e, Rotation());
         }
     }
 
@@ -235,7 +232,7 @@ int main()
         a->down = down;
         a->use = use;
         a->mouseX = x;
-        a->mouseY = y;
+        a->mouseY = 512 - y;
         a->selected = selected;
 
         m.update(1.0/60);

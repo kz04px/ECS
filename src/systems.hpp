@@ -11,14 +11,14 @@ class MovementSystem : public System
     public:
         MovementSystem()
         {
-            required.insert(Position::id);
+            required.insert(Transform::id);
             required.insert(Velocity::id);
         }
         void update(const float dt)
         {
             assert(manager != NULL);
 
-            auto &p = manager->cm.getStore<Position>();
+            auto &p = manager->cm.getStore<Transform>();
             auto &v = manager->cm.getStore<Velocity>();
 
             for(auto e : entities)
@@ -45,27 +45,25 @@ class RenderSystem : public System
     public:
         RenderSystem(SDL_Renderer *r, SDL_Texture *shipTexture) : renderer(r), shipTexture(shipTexture)
         {
-            required.insert(Position::id);
+            required.insert(Transform::id);
             required.insert(Render::id);
             required.insert(Size::id);
-            required.insert(Rotation::id);
         }
         void update(const float dt)
         {
             assert(manager != NULL);
             assert(renderer != NULL);
+            assert(shipTexture != NULL);
 
-            auto &p = manager->cm.getStore<Position>();
-            auto &s = manager->cm.getStore<Size>();
-            auto &r = manager->cm.getStore<Render>();
-            auto &rotation = manager->cm.getStore<Rotation>();
+            auto &transformStore = manager->cm.getStore<Transform>();
+            auto &sizeStore = manager->cm.getStore<Size>();
+            auto &renderStore = manager->cm.getStore<Render>();
 
             for(auto e : entities)
             {
-                auto a = p.getComponent(e);
-                auto b = s.getComponent(e);
-                auto c = r.getComponent(e);
-                auto d = rotation.getComponent(e);
+                auto a = transformStore.getComponent(e);
+                auto b = sizeStore.getComponent(e);
+                auto c = renderStore.getComponent(e);
 
                 SDL_SetRenderDrawColor(renderer, c->red, c->green, c->blue, 255);
 
@@ -75,14 +73,14 @@ class RenderSystem : public System
                     {
                         SDL_Rect rect;
                         rect.x = a->x - b->radius + x*512;
-                        rect.y = a->y - b->radius + y*512;
+                        rect.y = 512 - a->y - b->radius + y*512;
                         rect.w = 2 * b->radius;
                         rect.h = 2 * b->radius;
 
                         if(c->texture == 1)
                         {
                             SDL_Point center = {b->radius, b->radius};
-                            SDL_RenderCopyEx(renderer, shipTexture, NULL, &rect, d->radians*180/3.142 - 90, &center, SDL_FLIP_NONE);
+                            SDL_RenderCopyEx(renderer, shipTexture, NULL, &rect, -a->rotation*180/3.142 + 90, &center, SDL_FLIP_NONE);
                         }
                         else
                         {
@@ -103,40 +101,37 @@ class InputSystem : public System
     public:
         InputSystem()
         {
-            required.insert(Position::id);
+            required.insert(Transform::id);
             required.insert(Velocity::id);
-            required.insert(Rotation::id);
             required.insert(Inputs::id);
         }
         void update(const float dt)
         {
             assert(manager != NULL);
 
-            auto &positionStore = manager->cm.getStore<Position>();
+            auto &transformStore = manager->cm.getStore<Transform>();
             auto &velocityStore = manager->cm.getStore<Velocity>();
             auto &inputsStore   = manager->cm.getStore<Inputs>();
-            auto &rotationStore = manager->cm.getStore<Rotation>();
 
             for(auto e : entities)
             {
-                auto a = velocityStore.getComponent(e);
-                auto b = inputsStore.getComponent(e);
-                auto c = rotationStore.getComponent(e);
-                auto d = positionStore.getComponent(e);
+                auto transform = transformStore.getComponent(e);
+                auto inputs = inputsStore.getComponent(e);
+                auto velocity = velocityStore.getComponent(e);
 
-                float dx = b->mouseX - d->x;
-                float dy = b->mouseY - d->y;
-                c->radians = atan2(-dy, -dx);
+                float dx = inputs->mouseX - transform->x;
+                float dy = inputs->mouseY - transform->y;
+                transform->rotation = atan2(dy, dx);
 
-                if(b->left == true)       {a->x -= 0.05;}
-                else if(b->right == true) {a->x += 0.05;}
-                if(b->up == true)         {a->y -= 0.05;}
-                else if(b->down == true)  {a->y += 0.05;}
+                if(inputs->left == true)       {velocity->x -= 0.05;}
+                else if(inputs->right == true) {velocity->x += 0.05;}
+                if(inputs->up == true)         {velocity->y += 0.05;}
+                else if(inputs->down == true)  {velocity->y -= 0.05;}
 
-                if(a->x > 5.0)       {a->x =  5.0;}
-                else if(a->x < -5.0) {a->x = -5.0;}
-                if(a->y > 5.0)       {a->y =  5.0;}
-                else if(a->y < -5.0) {a->y = -5.0;}
+                if(velocity->x > 5.0)       {velocity->x =  5.0;}
+                else if(velocity->x < -5.0) {velocity->x = -5.0;}
+                if(velocity->y > 5.0)       {velocity->y =  5.0;}
+                else if(velocity->y < -5.0) {velocity->y = -5.0;}
             }
         }
     private:
@@ -150,14 +145,14 @@ class WeaponSystem : public System
         {
             required.insert(Weapon::id);
             required.insert(Inputs::id);
-            required.insert(Position::id);
+            required.insert(Transform::id);
         }
         void update(const float dt)
         {
             assert(manager != NULL);
 
             auto &inputsStore = manager->cm.getStore<Inputs>();
-            auto &positionStore = manager->cm.getStore<Position>();
+            auto &transformStore = manager->cm.getStore<Transform>();
             auto &weaponStore = manager->cm.getStore<Weapon>();
 
             for(auto e : entities)
@@ -179,65 +174,37 @@ class WeaponSystem : public System
                     Entity newEntity = manager->em.getEntity();
                     if(newEntity != invalidEntity)
                     {
-                        auto pos = positionStore.getComponent(e);
+                        auto transform = transformStore.getComponent(e);
 
-                        float dx = a->mouseX - pos->x;
-                        float dy = a->mouseY - pos->y;
-                        float dir = atan2(dy, dx);
-
-                        float x = pos->x + 25*cos(dir);
-                        float y = pos->y + 25*sin(dir);
+                        float x = transform->x + 25*cos(transform->rotation);
+                        float y = transform->y + 25*sin(transform->rotation);
 
                         if(a->selected == 0)
                         {
                             // Bullet
-                            manager->addEntityComponent<Position>(newEntity, Position(x, y));
-                            manager->addEntityComponent<Velocity>(newEntity, Velocity(200.0, dir));
+                            manager->addEntityComponent<Transform>(newEntity, Transform(x, y, transform->rotation));
+                            manager->addEntityComponent<Velocity>(newEntity, Velocity(200.0, transform->rotation));
                             manager->addEntityComponent<Render>(newEntity, Render(0,255,0));
                             manager->addEntityComponent<Size>(newEntity, Size(1.0));
                             manager->addEntityComponent<Timer>(newEntity, Timer(1.0));
                             manager->addEntityComponent<Projectile>(newEntity, Projectile(1));
                             manager->addEntityComponent<Collision>(newEntity, Collision(2, true));
                             manager->addEntityComponent<Health>(newEntity, Health());
-                            manager->addEntityComponent<Rotation>(newEntity, Rotation());
                         }
                         else if(a->selected == 1)
                         {
                             // Rocket
-                            manager->addEntityComponent<Position>(newEntity, Position(x, y));
-                            manager->addEntityComponent<Velocity>(newEntity, Velocity(50.0, dir));
+                            manager->addEntityComponent<Transform>(newEntity, Transform(x, y, transform->rotation));
+                            manager->addEntityComponent<Velocity>(newEntity, Velocity(50.0, transform->rotation));
                             manager->addEntityComponent<Render>(newEntity, Render(255,0,0));
                             manager->addEntityComponent<Size>(newEntity, Size(2.0));
                             manager->addEntityComponent<Timer>(newEntity, Timer(2.0));
-                            manager->addEntityComponent<Rocket>(newEntity, Rocket(2, 1.0));
+                            manager->addEntityComponent<Rocket>(newEntity, Rocket(2, 0.5));
                             manager->addEntityComponent<Collision>(newEntity, Collision(2, true));
                             manager->addEntityComponent<Health>(newEntity, Health());
-                            manager->addEntityComponent<Rotation>(newEntity, Rotation());
                         }
                     }
                 }
-            }
-        }
-    private:
-};
-
-
-class ProjectileSystem : public System
-{
-    public:
-        ProjectileSystem()
-        {
-            required.insert(Projectile::id);
-        }
-        void update(const float dt)
-        {
-            assert(manager != NULL);
-
-            auto &projectileStore = manager->cm.getStore<Projectile>();
-
-            for(auto e : entities)
-            {
-                auto a = projectileStore.getComponent(e);
             }
         }
     private:
@@ -311,7 +278,7 @@ class CollisionSystem : public System
         CollisionSystem()
         {
             required.insert(Collision::id);
-            required.insert(Position::id);
+            required.insert(Transform::id);
             required.insert(Size::id);
         }
         void update(const float dt)
@@ -319,13 +286,13 @@ class CollisionSystem : public System
             assert(manager != NULL);
 
             auto &collisionStore = manager->cm.getStore<Collision>();
-            auto &positionStore = manager->cm.getStore<Position>();
+            auto &transformStore = manager->cm.getStore<Transform>();
             auto &sizeStore = manager->cm.getStore<Size>();
 
             for(auto e : entities)
             {
                 auto c = collisionStore.getComponent(e);
-                auto a = positionStore.getComponent(e);
+                auto a = transformStore.getComponent(e);
                 auto r = sizeStore.getComponent(e);
 
                 c->collided = false;
@@ -340,7 +307,7 @@ class CollisionSystem : public System
                     if(c->mask == c2->mask && c->self == false) {continue;}
                     //if((c->mask & c2->mask) == 0) {continue;}
 
-                    auto a2 = positionStore.getComponent(e2);
+                    auto a2 = transformStore.getComponent(e2);
                     auto r2 = sizeStore.getComponent(e2);
 
                     float dx = a->x - a2->x;
@@ -428,7 +395,7 @@ class AsteroidSystem : public System
     public:
         AsteroidSystem()
         {
-            required.insert(Position::id);
+            required.insert(Transform::id);
             required.insert(Size::id);
             required.insert(Health::id);
             required.insert(Asteroid::id);
@@ -437,7 +404,7 @@ class AsteroidSystem : public System
         {
             assert(manager != NULL);
 
-            auto &positionStore = manager->cm.getStore<Position>();
+            auto &transformStore = manager->cm.getStore<Transform>();
             auto &sizeStore = manager->cm.getStore<Size>();
             auto &healthStore = manager->cm.getStore<Health>();
 
@@ -448,7 +415,7 @@ class AsteroidSystem : public System
 
                 if(health->health <= 0 && size->radius >= 6.0)
                 {
-                    auto pos = positionStore.getComponent(e);
+                    auto transform = transformStore.getComponent(e);
 
                     // New asteroids
                     for(int i = 0; i < rand()%2+3; ++i)
@@ -457,14 +424,13 @@ class AsteroidSystem : public System
                         if(newEntity != invalidEntity)
                         {
                             int colour = RAND_BETWEEN(100, 200);
-                            manager->addEntityComponent<Position>(newEntity, Position(pos->x, pos->y));
+                            manager->addEntityComponent<Transform>(newEntity, Transform(transform->x, transform->y, RAND_BETWEEN(0, 2 * 3.142)));
                             manager->addEntityComponent<Velocity>(newEntity, Velocity(RAND_BETWEEN(50.0, 100.0), RAND_BETWEEN(0, 2 * 3.142)));
                             manager->addEntityComponent<Size>(newEntity, Size(size->radius/2));
                             manager->addEntityComponent<Render>(newEntity, Render(colour, colour, colour));
                             manager->addEntityComponent<Collision>(newEntity, Collision(3, false));
                             manager->addEntityComponent<Health>(newEntity, Health(health->startHealth - 1));
                             manager->addEntityComponent<Asteroid>(newEntity, Asteroid());
-                            manager->addEntityComponent<Rotation>(newEntity, Rotation());
                         }
                     }
 
@@ -474,7 +440,7 @@ class AsteroidSystem : public System
                         Entity newEntity = manager->em.getEntity();
                         if(newEntity != invalidEntity)
                         {
-                            manager->addEntityComponent<Position>(newEntity, Position(pos->x, pos->y));
+                            manager->addEntityComponent<Transform>(newEntity, Transform(transform->x, transform->y, RAND_BETWEEN(0, 2 * 3.142)));
                             manager->addEntityComponent<Velocity>(newEntity, Velocity(RAND_BETWEEN(150.0, 300.0), RAND_BETWEEN(0, 2 * 3.142)));
                             manager->addEntityComponent<Size>(newEntity, Size(1.0));
                             if(rand()%2 == 0)
@@ -486,7 +452,6 @@ class AsteroidSystem : public System
                                 manager->addEntityComponent<Render>(newEntity, Render(220, 140, 20));
                             }
                             manager->addEntityComponent<Timer>(newEntity, Timer(0.5));
-                            manager->addEntityComponent<Rotation>(newEntity, Rotation());
                         }
                     }
                 }
