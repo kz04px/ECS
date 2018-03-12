@@ -202,7 +202,7 @@ class WeaponSystem : public System
                             manager->addEntityComponent<Render>(newEntity, Render(0,255,0));
                             manager->addEntityComponent<Size>(newEntity, Size(1.0));
                             manager->addEntityComponent<Timer>(newEntity, Timer(1.0));
-                            manager->addEntityComponent<Projectile>(newEntity, Projectile(1));
+                            manager->addEntityComponent<Projectile>(newEntity, Projectile(e, 1));
                             manager->addEntityComponent<Collision>(newEntity, Collision(2, true));
                             manager->addEntityComponent<Health>(newEntity, Health());
                         }
@@ -214,7 +214,7 @@ class WeaponSystem : public System
                             manager->addEntityComponent<Render>(newEntity, Render(255,0,0));
                             manager->addEntityComponent<Size>(newEntity, Size(2.0));
                             manager->addEntityComponent<Timer>(newEntity, Timer(2.0));
-                            manager->addEntityComponent<Rocket>(newEntity, Rocket(2, 0.5));
+                            manager->addEntityComponent<Rocket>(newEntity, Rocket(e, 2, 0.5));
                             manager->addEntityComponent<Collision>(newEntity, Collision(2, true));
                             manager->addEntityComponent<Health>(newEntity, Health());
                             manager->addEntityComponent<Explode>(newEntity, Explode());

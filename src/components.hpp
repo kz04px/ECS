@@ -140,13 +140,14 @@ class Timer
 class Projectile
 {
     public:
-        Projectile() : damage(1)
+        Projectile() : owner(invalidEntity), damage(1)
         {
         }
-        explicit Projectile(int damage) : damage(damage)
+        Projectile(Entity e, int damage) : owner(e), damage(damage)
         {
         }
         static const Component id;
+        Entity owner;
         int damage;
     private:
 };
@@ -155,13 +156,14 @@ class Projectile
 class Rocket
 {
     public:
-        Rocket() : damage(1), boostTimeLeft(1.0)
+        Rocket() : owner(invalidEntity), damage(1), boostTimeLeft(1.0)
         {
         }
-        explicit Rocket(int d, float t) : damage(d), boostTimeLeft(t)
+        Rocket(Entity e, int d, float t) : owner(e), damage(d), boostTimeLeft(t)
         {
         }
         static const Component id;
+        Entity owner;
         int damage;
         float boostTimeLeft;
     private:
