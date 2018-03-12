@@ -24,7 +24,9 @@ template<typename T>
 class ComponentStore : public Store
 {
     public:
-        ComponentStore(const Component id_) : Store(), id(id_) {};
+        ComponentStore(const Component id_) : Store(), id(id_)
+        {
+        }
         void addEntity(const Entity e, T t)
         {
             components.insert(std::pair<Entity, T>(e, t));
@@ -99,6 +101,10 @@ class ComponentManager
         ComponentStore<T>& getStore()
         {
             return dynamic_cast<ComponentStore<T>&>(*stores[T::id]);
+        }
+        bool entityHasComponent(const Entity e, const Component c)
+        {
+            return components[c].find(e) != components[c].end();
         }
         Component next = 0;
         std::unordered_map<Component, std::set<Entity>> components;

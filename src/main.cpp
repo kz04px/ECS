@@ -1,5 +1,4 @@
 #include <iostream>
-#include <cassert>
 #include "ecs.hpp"
 #include "components.hpp"
 #include "systems.hpp"
@@ -56,7 +55,6 @@ int main()
     // Systems have to be created to run
     auto inputSystem = new InputSystem();
     m.createSystem<MovementSystem>(new MovementSystem());
-    m.createSystem<RenderSystem>(new RenderSystem(renderer, shipTexture));
     m.createSystem<InputSystem>(inputSystem);
     m.createSystem<WeaponSystem>(new WeaponSystem());
     m.createSystem<TimerSystem>(new TimerSystem());
@@ -65,6 +63,8 @@ int main()
     m.createSystem<HealthSystem>(new HealthSystem());
     m.createSystem<AsteroidSystem>(new AsteroidSystem());
     m.createSystem<RocketSystem>(new RocketSystem());
+    m.createSystem<RenderSystem>(new RenderSystem(renderer, shipTexture));
+
 
     // Add the player
     Entity playerEntity = m.em.getEntity();
@@ -112,7 +112,7 @@ int main()
     clock_t start = clock();
     for(int i = 0; i < frames; ++i)
     {
-        m.sm.update(0.1);
+        m.update(0.1);
     }
     clock_t end = clock();
     double timeTaken = (double)(end-start)/CLOCKS_PER_SEC;
@@ -124,6 +124,7 @@ int main()
     std::cout << "120 FPS: " << 1000*(1.0/120.0) << "ms" << std::endl;
     std::cout << "Max FPS: " << 1/timePer << std::endl;
     std::cout << "Per frame: " << 1000*timePer << "ms" << std::endl;
+    return 0;
 #endif
 
 

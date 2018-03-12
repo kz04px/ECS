@@ -2,6 +2,7 @@
 #define SYSTEM_MANAGER_HPP
 
 
+#include <cassert>
 #include <iostream>
 #include <vector>
 #include <memory>

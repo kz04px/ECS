@@ -23,6 +23,9 @@ class MovementSystem : public System
 
             for(auto e : entities)
             {
+                assert(manager->cm.entityHasComponent(e, Transform::id));
+                assert(manager->cm.entityHasComponent(e, Velocity::id));
+
                 auto a = p.getComponent(e);
                 auto b = v.getComponent(e);
 
@@ -61,6 +64,10 @@ class RenderSystem : public System
 
             for(auto e : entities)
             {
+                assert(manager->cm.entityHasComponent(e, Transform::id));
+                assert(manager->cm.entityHasComponent(e, Render::id));
+                assert(manager->cm.entityHasComponent(e, Size::id));
+
                 auto a = transformStore.getComponent(e);
                 auto b = sizeStore.getComponent(e);
                 auto c = renderStore.getComponent(e);
@@ -115,6 +122,10 @@ class InputSystem : public System
 
             for(auto e : entities)
             {
+                assert(manager->cm.entityHasComponent(e, Transform::id));
+                assert(manager->cm.entityHasComponent(e, Velocity::id));
+                assert(manager->cm.entityHasComponent(e, Inputs::id));
+
                 auto transform = transformStore.getComponent(e);
                 auto inputs = inputsStore.getComponent(e);
                 auto velocity = velocityStore.getComponent(e);
@@ -157,6 +168,10 @@ class WeaponSystem : public System
 
             for(auto e : entities)
             {
+                assert(manager->cm.entityHasComponent(e, Weapon::id));
+                assert(manager->cm.entityHasComponent(e, Inputs::id));
+                assert(manager->cm.entityHasComponent(e, Transform::id));
+
                 auto a = inputsStore.getComponent(e);
                 auto b = weaponStore.getComponent(e);
 
@@ -228,6 +243,9 @@ class RocketSystem : public System
 
             for(auto e : entities)
             {
+                assert(manager->cm.entityHasComponent(e, Rocket::id));
+                assert(manager->cm.entityHasComponent(e, Velocity::id));
+
                 auto r = rocketStore.getComponent(e);
 
                 r->boostTimeLeft -= dt;
@@ -258,6 +276,8 @@ class TimerSystem : public System
 
             for(auto e : entities)
             {
+                assert(manager->cm.entityHasComponent(e, Timer::id));
+
                 auto a = timerStore.getComponent(e);
 
                 a->timeLeft -= dt;
@@ -291,6 +311,10 @@ class CollisionSystem : public System
 
             for(auto e : entities)
             {
+                assert(manager->cm.entityHasComponent(e, Collision::id));
+                assert(manager->cm.entityHasComponent(e, Transform::id));
+                assert(manager->cm.entityHasComponent(e, Size::id));
+
                 auto c = collisionStore.getComponent(e);
                 auto a = transformStore.getComponent(e);
                 auto r = sizeStore.getComponent(e);
@@ -341,6 +365,8 @@ class HealthSystem : public System
 
             for(auto e : entities)
             {
+                assert(manager->cm.entityHasComponent(e, Health::id));
+
                 auto h = healthStore.getComponent(e);
 
                 h->immunity -= dt;
@@ -371,6 +397,9 @@ class DamageSystem : public System
 
             for(auto e : entities)
             {
+                assert(manager->cm.entityHasComponent(e, Collision::id));
+                assert(manager->cm.entityHasComponent(e, Health::id));
+
                 auto c = collisionStore.getComponent(e);
                 auto h = healthStore.getComponent(e);
 
@@ -410,6 +439,10 @@ class AsteroidSystem : public System
 
             for(auto e : entities)
             {
+                assert(manager->cm.entityHasComponent(e, Transform::id));
+                assert(manager->cm.entityHasComponent(e, Size::id));
+                assert(manager->cm.entityHasComponent(e, Health::id));
+
                 auto health = healthStore.getComponent(e);
                 auto size = sizeStore.getComponent(e);
 
