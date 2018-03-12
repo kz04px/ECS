@@ -52,12 +52,14 @@ class Manager
         void update(const float dt)
         {
             sm.update(dt);
+
             for(auto e : remove)
             {
                 em.removeEntity(e);
                 cm.removeEntity(e);
                 sm.removeEntity(e);
             }
+            remove.clear();
         }
         EntityManager em;
         ComponentManager cm;
