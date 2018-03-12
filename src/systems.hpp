@@ -18,25 +18,25 @@ class MovementSystem : public System
         {
             assert(manager != NULL);
 
-            auto &p = manager->cm.getStore<Transform>();
-            auto &v = manager->cm.getStore<Velocity>();
+            auto &transformStore = manager->cm.getStore<Transform>();
+            auto &velocityStore = manager->cm.getStore<Velocity>();
 
             for(auto e : entities)
             {
                 assert(manager->cm.entityHasComponent(e, Transform::id));
                 assert(manager->cm.entityHasComponent(e, Velocity::id));
 
-                auto a = p.getComponent(e);
-                auto b = v.getComponent(e);
+                auto transform = transformStore.getComponent(e);
+                auto velocity = velocityStore.getComponent(e);
 
-                a->x += dt * b->speed * b->x;
-                a->y += dt * b->speed * b->y;
+                transform->x += dt * velocity->speed * velocity->x;
+                transform->y += dt * velocity->speed * velocity->y;
 
-                if(a->x > 512) {a->x -= 512;}
-                if(a->x <   0) {a->x += 512;}
+                if(transform->x > 512) {transform->x -= 512;}
+                if(transform->x <   0) {transform->x += 512;}
 
-                if(a->y > 512) {a->y -= 512;}
-                if(a->y <   0) {a->y += 512;}
+                if(transform->y > 512) {transform->y -= 512;}
+                if(transform->y <   0) {transform->y += 512;}
             }
         }
     private:
@@ -232,6 +232,7 @@ class RocketSystem : public System
         RocketSystem()
         {
             required.insert(Rocket::id);
+            required.insert(Transform::id);
             required.insert(Velocity::id);
         }
         void update(const float dt)
@@ -239,11 +240,13 @@ class RocketSystem : public System
             assert(manager != NULL);
 
             auto &rocketStore = manager->cm.getStore<Rocket>();
+            auto &transformStore = manager->cm.getStore<Transform>();
             auto &velocityStore = manager->cm.getStore<Velocity>();
 
             for(auto e : entities)
             {
                 assert(manager->cm.entityHasComponent(e, Rocket::id));
+                assert(manager->cm.entityHasComponent(e, Transform::id));
                 assert(manager->cm.entityHasComponent(e, Velocity::id));
 
                 auto r = rocketStore.getComponent(e);
@@ -254,6 +257,44 @@ class RocketSystem : public System
                 {
                     auto v = velocityStore.getComponent(e);
                     v->speed *= 5;
+                    manager->addEntityComponent<Trail>(e, Trail());
+                }
+
+                if(manager->cm.entityHasComponent(e, Trail::id))
+                {
+                    if(rand()%2 == 0)
+                    {
+                        Entity newEntity = manager->em.getEntity();
+                        if(newEntity != invalidEntity)
+                        {
+                            auto transform = transformStore.getComponent(e);
+
+                            manager->addEntityComponent<Transform>(newEntity, Transform(
+                                transform->x + RAND_BETWEEN(-3.0, 3.0),
+                                transform->y + RAND_BETWEEN(-3.0, 3.0),
+                                RAND_BETWEEN(0, 2 * 3.142))
+                            );
+                            manager->addEntityComponent<Size>(newEntity, Size(1.0));
+                            int n = rand()%4;
+                            if(n == 0)
+                            {
+                                manager->addEntityComponent<Render>(newEntity, Render(220, 20, 20));
+                            }
+                            else if(n == 1)
+                            {
+                                manager->addEntityComponent<Render>(newEntity, Render(220, 200, 20));
+                            }
+                            else if(n == 2)
+                            {
+                                manager->addEntityComponent<Render>(newEntity, Render(220, 70, 20));
+                            }
+                            else
+                            {
+                                manager->addEntityComponent<Render>(newEntity, Render(50, 20, 20));
+                            }
+                            manager->addEntityComponent<Timer>(newEntity, Timer(RAND_BETWEEN(0.5, 0.75)));
+                        }
+                    }
                 }
             }
         }
@@ -464,6 +505,7 @@ class AsteroidSystem : public System
                             manager->addEntityComponent<Collision>(newEntity, Collision(3, false));
                             manager->addEntityComponent<Health>(newEntity, Health(health->startHealth - 1));
                             manager->addEntityComponent<Asteroid>(newEntity, Asteroid());
+                            manager->addEntityComponent<Trail>(newEntity, Trail());
                         }
                     }
 

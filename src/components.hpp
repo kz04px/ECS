@@ -213,6 +213,23 @@ class Asteroid
 };
 
 
+class Trail
+{
+    public:
+        Trail()
+        {
+        }
+        Trail(int r, int g, int b) : red(r), green(g), blue(b)
+        {
+        }
+        static const Component id;
+        int red;
+        int green;
+        int blue;
+    private:
+};
+
+
 const Component Transform::id = 0;
 const Component Velocity::id = 1;
 const Component Size::id = 2;
@@ -225,6 +242,7 @@ const Component Collision::id = 8;
 const Component Health::id = 9;
 const Component Asteroid::id = 10;
 const Component Rocket::id = 11;
+const Component Trail::id = 12;
 
 
 #endif
