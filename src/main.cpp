@@ -52,6 +52,7 @@ int main()
     m.createComponent<Asteroid>();
     m.createComponent<Rocket>();
     m.createComponent<Trail>();
+    m.createComponent<Explode>();
 
     // Systems have to be created to run
     auto inputSystem = new InputSystem();

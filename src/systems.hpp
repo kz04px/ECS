@@ -217,6 +217,7 @@ class WeaponSystem : public System
                             manager->addEntityComponent<Rocket>(newEntity, Rocket(2, 0.5));
                             manager->addEntityComponent<Collision>(newEntity, Collision(2, true));
                             manager->addEntityComponent<Health>(newEntity, Health());
+                            manager->addEntityComponent<Explode>(newEntity, Explode());
                         }
                     }
                 }
@@ -428,6 +429,7 @@ class DamageSystem : public System
         {
             required.insert(Health::id);
             required.insert(Collision::id);
+            required.insert(Transform::id);
         }
         void update(const float dt)
         {
@@ -435,11 +437,13 @@ class DamageSystem : public System
 
             auto &collisionStore = manager->cm.getStore<Collision>();
             auto &healthStore = manager->cm.getStore<Health>();
+            auto &transformStore = manager->cm.getStore<Transform>();
 
             for(auto e : entities)
             {
                 assert(manager->cm.entityHasComponent(e, Collision::id));
                 assert(manager->cm.entityHasComponent(e, Health::id));
+                assert(manager->cm.entityHasComponent(e, Transform::id));
 
                 auto c = collisionStore.getComponent(e);
                 auto h = healthStore.getComponent(e);
@@ -452,6 +456,43 @@ class DamageSystem : public System
                     if(h->health <= 0)
                     {
                         manager->remove.push_back(e);
+
+                        if(manager->cm.entityHasComponent(e, Explode::id))
+                        {
+                            for(int i = 0; i < 20; ++i)
+                            {
+                                Entity newEntity = manager->em.getEntity();
+                                if(newEntity != invalidEntity)
+                                {
+                                    auto transform = transformStore.getComponent(e);
+
+                                    manager->addEntityComponent<Transform>(newEntity, Transform(
+                                        transform->x + RAND_BETWEEN(-4.0, 4.0)*RAND_BETWEEN(-4.0, 4.0),
+                                        transform->y + RAND_BETWEEN(-4.0, 4.0)*RAND_BETWEEN(-4.0, 4.0),
+                                        RAND_BETWEEN(0, 2 * 3.142))
+                                    );
+                                    manager->addEntityComponent<Size>(newEntity, Size(5.0));
+                                    int n = rand()%4;
+                                    if(n == 0)
+                                    {
+                                        manager->addEntityComponent<Render>(newEntity, Render(220, 20, 20));
+                                    }
+                                    else if(n == 1)
+                                    {
+                                        manager->addEntityComponent<Render>(newEntity, Render(220, 200, 20));
+                                    }
+                                    else if(n == 2)
+                                    {
+                                        manager->addEntityComponent<Render>(newEntity, Render(220, 70, 20));
+                                    }
+                                    else
+                                    {
+                                        manager->addEntityComponent<Render>(newEntity, Render(50, 20, 20));
+                                    }
+                                    manager->addEntityComponent<Timer>(newEntity, Timer(RAND_BETWEEN(0.1, 1.0)));
+                                }
+                            }
+                        }
                     }
                 }
             }

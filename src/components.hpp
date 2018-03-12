@@ -230,6 +230,22 @@ class Trail
 };
 
 
+class Explode
+{
+    public:
+        Explode()
+        {
+        }
+        Explode(int r, int d) : radius(r), damage(d)
+        {
+        }
+        static const Component id;
+        int radius;
+        int damage;
+    private:
+};
+
+
 const Component Transform::id = 0;
 const Component Velocity::id = 1;
 const Component Size::id = 2;
@@ -243,6 +259,7 @@ const Component Health::id = 9;
 const Component Asteroid::id = 10;
 const Component Rocket::id = 11;
 const Component Trail::id = 12;
+const Component Explode::id = 13;
 
 
 #endif
