@@ -72,7 +72,7 @@ class RenderSystem : public System
                 auto b = sizeStore.getComponent(e);
                 auto c = renderStore.getComponent(e);
 
-                SDL_SetRenderDrawColor(renderer, c->red, c->green, c->blue, 255);
+                SDL_SetRenderDrawColor(renderer, c->red, c->green, c->blue, c->alpha);
 
                 for(int x = -1; x < 2; ++x)
                 {
@@ -293,7 +293,9 @@ class RocketSystem : public System
                             {
                                 manager->addEntityComponent<Render>(newEntity, Render(50, 20, 20));
                             }
-                            manager->addEntityComponent<Timer>(newEntity, Timer(RAND_BETWEEN(0.5, 0.75)));
+                            float time = RAND_BETWEEN(0.5, 0.75);
+                            manager->addEntityComponent<Timer>(newEntity, Timer(time));
+                            manager->addEntityComponent<Fade>(newEntity, Fade(time));
                         }
                     }
                 }
@@ -489,7 +491,9 @@ class DamageSystem : public System
                                     {
                                         manager->addEntityComponent<Render>(newEntity, Render(50, 20, 20));
                                     }
-                                    manager->addEntityComponent<Timer>(newEntity, Timer(RAND_BETWEEN(0.1, 1.0)));
+                                    float time = RAND_BETWEEN(0.1, 1.0);
+                                    manager->addEntityComponent<Timer>(newEntity, Timer(time));
+                                    manager->addEntityComponent<Fade>(newEntity, Fade(time));
                                 }
                             }
                         }
@@ -546,7 +550,6 @@ class AsteroidSystem : public System
                             manager->addEntityComponent<Collision>(newEntity, Collision(3, false));
                             manager->addEntityComponent<Health>(newEntity, Health(health->startHealth - 1));
                             manager->addEntityComponent<Asteroid>(newEntity, Asteroid());
-                            manager->addEntityComponent<Trail>(newEntity, Trail());
                         }
                     }
 
@@ -568,8 +571,46 @@ class AsteroidSystem : public System
                                 manager->addEntityComponent<Render>(newEntity, Render(220, 140, 20));
                             }
                             manager->addEntityComponent<Timer>(newEntity, Timer(0.5));
+                            manager->addEntityComponent<Fade>(newEntity, Fade(0.5));
                         }
                     }
+                }
+            }
+        }
+    private:
+};
+
+
+class FadeSystem : public System
+{
+    public:
+        FadeSystem()
+        {
+            required.insert(Fade::id);
+        }
+        void update(const float dt)
+        {
+            assert(manager != NULL);
+
+            auto &fadeStore = manager->cm.getStore<Fade>();
+            auto &renderStore = manager->cm.getStore<Render>();
+
+            for(auto e : entities)
+            {
+                assert(manager->cm.entityHasComponent(e, Fade::id));
+
+                auto fade = fadeStore.getComponent(e);
+                auto render = renderStore.getComponent(e);
+
+                fade->time += dt;
+
+                if(fade->time < fade->fadeTime)
+                {
+                    render->alpha = 255*(1.0 - fade->time / fade->fadeTime);
+                }
+                else
+                {
+                    render->alpha = 0;
                 }
             }
         }

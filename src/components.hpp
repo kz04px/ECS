@@ -61,19 +61,20 @@ class Size
 class Render
 {
     public:
-        Render() : red(255), green(0), blue(0), texture(0)
+        Render() : red(255), green(0), blue(0), alpha(255), texture(0)
         {
         }
-        Render(int texture) : red(255), green(0), blue(0), texture(texture)
+        Render(int texture) : red(255), green(0), blue(0), alpha(255), texture(texture)
         {
         }
-        Render(int r, int g, int b) : red(r), green(g), blue(b), texture(0)
+        Render(int r, int g, int b) : red(r), green(g), blue(b), alpha(255), texture(0)
         {
         }
         static const Component id;
         int red;
         int green;
         int blue;
+        int alpha;
         int texture;
     private:
 };
@@ -248,6 +249,22 @@ class Explode
 };
 
 
+class Fade
+{
+    public:
+        Fade() : fadeTime(1.0), time(0.0)
+        {
+        }
+        Fade(float t) : fadeTime(t), time(0.0)
+        {
+        }
+        static const Component id;
+        float fadeTime;
+        float time;
+    private:
+};
+
+
 const Component Transform::id = 0;
 const Component Velocity::id = 1;
 const Component Size::id = 2;
@@ -262,6 +279,7 @@ const Component Asteroid::id = 10;
 const Component Rocket::id = 11;
 const Component Trail::id = 12;
 const Component Explode::id = 13;
+const Component Fade::id = 14;
 
 
 #endif

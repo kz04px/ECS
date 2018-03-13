@@ -28,6 +28,7 @@ int main()
     SDL_RenderSetViewport(renderer, &rect);
     SDL_RenderSetClipRect(renderer, &rect);
 
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 
@@ -53,6 +54,7 @@ int main()
     m.createComponent<Rocket>();
     m.createComponent<Trail>();
     m.createComponent<Explode>();
+    m.createComponent<Fade>();
 
     // Systems have to be created to run
     auto inputSystem = new InputSystem();
@@ -66,6 +68,7 @@ int main()
     m.createSystem<AsteroidSystem>(new AsteroidSystem());
     m.createSystem<RocketSystem>(new RocketSystem());
     m.createSystem<RenderSystem>(new RenderSystem(renderer, shipTexture));
+    m.createSystem<FadeSystem>(new FadeSystem());
 
 
     // Add the player
