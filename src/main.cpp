@@ -55,9 +55,12 @@ int main()
     m.createComponent<Trail>();
     m.createComponent<Explode>();
     m.createComponent<Fade>();
+    m.createComponent<Player>();
+    m.createComponent<AI>();
 
     // Systems have to be created to run
     auto inputSystem = new InputSystem();
+    m.createSystem<AISystem>(new AISystem());
     m.createSystem<MovementSystem>(new MovementSystem());
     m.createSystem<InputSystem>(inputSystem);
     m.createSystem<WeaponSystem>(new WeaponSystem());
@@ -67,8 +70,8 @@ int main()
     m.createSystem<HealthSystem>(new HealthSystem());
     m.createSystem<AsteroidSystem>(new AsteroidSystem());
     m.createSystem<RocketSystem>(new RocketSystem());
-    m.createSystem<RenderSystem>(new RenderSystem(renderer, shipTexture));
     m.createSystem<FadeSystem>(new FadeSystem());
+    m.createSystem<RenderSystem>(new RenderSystem(renderer, shipTexture));
 
 
     // Add the player
@@ -82,7 +85,23 @@ int main()
         m.addEntityComponent<Inputs>(playerEntity, Inputs());
         m.addEntityComponent<Weapon>(playerEntity, Weapon());
         m.addEntityComponent<Collision>(playerEntity, Collision(1, true));
-        m.addEntityComponent<Health>(playerEntity, Health(3));
+        m.addEntityComponent<Health>(playerEntity, Health(5));
+        m.addEntityComponent<Player>(playerEntity, Player());
+    }
+
+    // Add en enemy
+    Entity enemyEntity = m.em.getEntity();
+    if(enemyEntity != invalidEntity)
+    {
+        m.addEntityComponent<Transform>(enemyEntity, Transform(RAND_BETWEEN(0.25*512, 0.75*512), RAND_BETWEEN(0.25*512, 0.75*512), 0.0));
+        m.addEntityComponent<Velocity>(enemyEntity, Velocity(80.0, RAND_BETWEEN(0, 2 * 3.142)));
+        m.addEntityComponent<Size>(enemyEntity, Size(15.0));
+        m.addEntityComponent<Render>(enemyEntity, Render(1));
+        m.addEntityComponent<Inputs>(enemyEntity, Inputs());
+        m.addEntityComponent<Weapon>(enemyEntity, Weapon());
+        m.addEntityComponent<Collision>(enemyEntity, Collision(1, true));
+        m.addEntityComponent<Health>(enemyEntity, Health(5));
+        m.addEntityComponent<AI>(enemyEntity, AI());
     }
 
     // Add the asteroids

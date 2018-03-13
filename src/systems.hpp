@@ -618,4 +618,157 @@ class FadeSystem : public System
 };
 
 
+class AISystem : public System
+{
+    public:
+        AISystem()
+        {
+            required.insert(AI::id);
+            required.insert(Inputs::id);
+            required.insert(Transform::id);
+        }
+        void update(const float dt)
+        {
+            assert(manager != NULL);
+
+            auto &aiStore = manager->cm.getStore<AI>();
+            auto &inputsStore = manager->cm.getStore<Inputs>();
+            auto &transformStore = manager->cm.getStore<Transform>();
+            auto &velocityStore = manager->cm.getStore<Velocity>();
+
+            auto players = manager->cm.components[Player::id];
+            auto asteroids = manager->cm.components[Asteroid::id];
+
+            for(auto e : entities)
+            {
+                auto transform1 = transformStore.getComponent(e);
+                auto inputs = inputsStore.getComponent(e);
+                auto ai = aiStore.getComponent(e);
+                auto velocity = velocityStore.getComponent(e);
+
+                float closestDist = 1000000;
+                float closestX = 0.0;
+                float closestY = 0.0;
+
+                ai->timer += dt;
+
+                if(ai->aggressive == true)
+                {
+                    for(auto p : players)
+                    {
+                        auto transform2 = transformStore.getComponent(p);
+
+                        float dx = transform2->x - transform1->x;
+                        if(fabs(dx) > 200.0) {continue;}
+                        float dy = transform2->y - transform1->y;
+                        if(fabs(dy) > 200.0) {continue;}
+
+                        float dist = sqrt(dx*dx + dy*dy);
+                        if(dist < closestDist)
+                        {
+                            closestDist = dist;
+                            closestX = transform2->x;
+                            closestY = transform2->y;
+                        }
+                    } 
+                }
+
+                for(auto a : asteroids)
+                {
+                    auto transform2 = transformStore.getComponent(a);
+
+                    float dx = transform2->x - transform1->x;
+                    if(fabs(dx) > 200.0) {continue;}
+                    float dy = transform2->y - transform1->y;
+                    if(fabs(dy) > 200.0) {continue;}
+
+                    float dist = sqrt(dx*dx + dy*dy);
+                    if(dist < closestDist)
+                    {
+                        closestDist = dist;
+                        closestX = transform2->x;
+                        closestY = transform2->y;
+                    }
+                }
+
+                inputs->mouseX = closestX;
+                inputs->mouseY = closestY;
+                inputs->selected = 0;
+                inputs->use = false;
+
+                if(closestDist <= 500.0)
+                {
+                    inputs->selected = 0;
+                    inputs->use = true;
+                }
+                else if(closestDist)
+                {
+                    //inputs->selected = 1;
+                    //inputs->use = true;
+                }
+
+                //if(ai->timer)
+
+                float dx = closestX - transform1->x;
+                float dy = closestY - transform1->y;
+
+                dx = (dx > 512/2 ? 512-dx : dx);
+                dy = (dy > 512/2 ? 512-dy : dy);
+
+                inputs->up = false;
+                inputs->down = false;
+                inputs->left = false;
+                inputs->right = false;
+
+                if(dx > 0)
+                {
+                    if(velocity->x < 3.0)
+                    {
+                        inputs->right = true;
+                    }
+                    else
+                    {
+                        inputs->left = true;
+                    }
+                }
+                else
+                {
+                    if(velocity->x > -3.0)
+                    {
+                        inputs->left = true;
+                    }
+                    else
+                    {
+                        inputs->right = true;
+                    }
+                }
+
+                if(dy > 0)
+                {
+                    if(velocity->y < 3.0)
+                    {
+                        inputs->up = true;
+                    }
+                    else
+                    {
+                        inputs->down = true;
+                    }
+                }
+                else
+                {
+                    if(velocity->y > -3.0)
+                    {
+                        inputs->down = true;
+                    }
+                    else
+                    {
+                        inputs->up = true;
+                    }
+                }
+            }
+        }
+    private:
+};
+
+
 #endif

@@ -265,6 +265,30 @@ class Fade
 };
 
 
+class Player
+{
+    public:
+        Player()
+        {
+        }
+        static const Component id;
+    private:
+};
+
+
+class AI
+{
+    public:
+        AI() : aggressive(true), timer(0.0)
+        {
+        }
+        static const Component id;
+        bool aggressive;
+        float timer;
+    private:
+};
+
+
 const Component Transform::id = 0;
 const Component Velocity::id = 1;
 const Component Size::id = 2;
@@ -280,6 +304,8 @@ const Component Rocket::id = 11;
 const Component Trail::id = 12;
 const Component Explode::id = 13;
 const Component Fade::id = 14;
+const Component Player::id = 15;
+const Component AI::id = 16;
 
 
 #endif
