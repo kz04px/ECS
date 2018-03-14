@@ -29,8 +29,8 @@ class MovementSystem : public System
                 auto transform = transformStore.getComponent(e);
                 auto velocity = velocityStore.getComponent(e);
 
-                transform->x += dt * velocity->speed * velocity->x;
-                transform->y += dt * velocity->speed * velocity->y;
+                transform->x += dt * velocity->x;
+                transform->y += dt * velocity->y;
 
                 if(transform->x > 512) {transform->x -= 512;}
                 if(transform->x <   0) {transform->x += 512;}
@@ -134,15 +134,16 @@ class InputSystem : public System
                 float dy = inputs->mouseY - transform->y;
                 transform->rotation = atan2(dy, dx);
 
-                if(inputs->left == true)       {velocity->x -= 0.05;}
-                else if(inputs->right == true) {velocity->x += 0.05;}
-                if(inputs->up == true)         {velocity->y += 0.05;}
-                else if(inputs->down == true)  {velocity->y -= 0.05;}
+                if(inputs->left == true)       {velocity->x -= 5;}
+                else if(inputs->right == true) {velocity->x += 5;}
+                if(inputs->up == true)         {velocity->y += 5;}
+                else if(inputs->down == true)  {velocity->y -= 5;}
 
-                if(velocity->x > 5.0)       {velocity->x =  5.0;}
-                else if(velocity->x < -5.0) {velocity->x = -5.0;}
-                if(velocity->y > 5.0)       {velocity->y =  5.0;}
-                else if(velocity->y < -5.0) {velocity->y = -5.0;}
+                const float speedLimit = 100.0;
+                if(velocity->x > speedLimit)       {velocity->x =  speedLimit;}
+                else if(velocity->x < -speedLimit) {velocity->x = -speedLimit;}
+                if(velocity->y > speedLimit)       {velocity->y =  speedLimit;}
+                else if(velocity->y < -speedLimit) {velocity->y = -speedLimit;}
             }
         }
     private:
@@ -191,8 +192,8 @@ class WeaponSystem : public System
                     {
                         auto transform = transformStore.getComponent(e);
 
-                        float x = transform->x + 25*cos(transform->rotation);
-                        float y = transform->y + 25*sin(transform->rotation);
+                        float x = transform->x + 25.0*cos(transform->rotation);
+                        float y = transform->y + 25.0*sin(transform->rotation);
 
                         if(a->selected == 0)
                         {
@@ -257,7 +258,8 @@ class RocketSystem : public System
                 if(r->boostTimeLeft <= 0.0 && r->boostTimeLeft + dt > 0.0)
                 {
                     auto v = velocityStore.getComponent(e);
-                    v->speed *= 5;
+                    v->x *= 5;
+                    v->y *= 5;
                     manager->addEntityComponent<Trail>(e, Trail());
                 }
 
@@ -646,9 +648,20 @@ class AISystem : public System
                 auto ai = aiStore.getComponent(e);
                 auto velocity = velocityStore.getComponent(e);
 
+                // Reset inputs
+                inputs->up = false;
+                inputs->down = false;
+                inputs->left = false;
+                inputs->right = false;
+                inputs->selected = 0;
+                inputs->use = false;
+
                 float closestDist = 1000000;
                 float closestX = 0.0;
                 float closestY = 0.0;
+
+                Entity closestPlayer = invalidEntity;
+                Entity closestAsteroid = invalidEntity;
 
                 ai->timer += dt;
 
@@ -659,9 +672,9 @@ class AISystem : public System
                         auto transform2 = transformStore.getComponent(p);
 
                         float dx = transform2->x - transform1->x;
-                        if(fabs(dx) > 200.0) {continue;}
+                        //if(fabs(dx) > 200.0) {continue;}
                         float dy = transform2->y - transform1->y;
-                        if(fabs(dy) > 200.0) {continue;}
+                        //if(fabs(dy) > 200.0) {continue;}
 
                         float dist = sqrt(dx*dx + dy*dy);
                         if(dist < closestDist)
@@ -669,6 +682,7 @@ class AISystem : public System
                             closestDist = dist;
                             closestX = transform2->x;
                             closestY = transform2->y;
+                            closestPlayer = p;
                         }
                     } 
                 }
@@ -678,9 +692,9 @@ class AISystem : public System
                     auto transform2 = transformStore.getComponent(a);
 
                     float dx = transform2->x - transform1->x;
-                    if(fabs(dx) > 200.0) {continue;}
+                    //if(fabs(dx) > 200.0) {continue;}
                     float dy = transform2->y - transform1->y;
-                    if(fabs(dy) > 200.0) {continue;}
+                    //if(fabs(dy) > 200.0) {continue;}
 
                     float dist = sqrt(dx*dx + dy*dy);
                     if(dist < closestDist)
@@ -688,26 +702,67 @@ class AISystem : public System
                         closestDist = dist;
                         closestX = transform2->x;
                         closestY = transform2->y;
+                        closestAsteroid = a;
                     }
                 }
 
-                inputs->mouseX = closestX;
-                inputs->mouseY = closestY;
-                inputs->selected = 0;
-                inputs->use = false;
 
-                if(closestDist <= 500.0)
+                float barrel = 25.0;
+                if(closestAsteroid != invalidEntity && closestDist >= barrel)
                 {
-                    inputs->selected = 0;
-                    inputs->use = true;
-                }
-                else if(closestDist)
-                {
-                    //inputs->selected = 1;
-                    //inputs->use = true;
-                }
+                    // Predict where we're aiming
+                    auto asteroidTransform = transformStore.getComponent(closestAsteroid);
+                    auto asteroidVelocity = velocityStore.getComponent(closestAsteroid);
 
-                //if(ai->timer)
+                    float shipX = transform1->x;
+                    float shipY = transform1->y;
+
+                    float asteroidX = asteroidTransform->x;
+                    float asteroidY = asteroidTransform->y;
+
+                    float asteroidVX = asteroidVelocity->x;
+                    float asteroidVY = asteroidVelocity->y;
+
+
+                    float bulletSpeed = 200;
+
+                    float a = asteroidVX*asteroidVX + asteroidVY*asteroidVY - bulletSpeed*bulletSpeed;
+                    if(a != 0.0)
+                    {
+                        float b = 2*(asteroidVX * (asteroidX - shipX) + asteroidVY * (asteroidY - shipY) - bulletSpeed*barrel);
+                        float c = (asteroidX-shipX)*(asteroidX-shipX) + (asteroidY-shipY)*(asteroidY-shipY) - barrel*barrel;
+
+                        float disc = b*b - 4*a*c;
+
+                        float t1 = (-b + sqrt(disc)) / (2 * a);
+                        float t2 = (-b - sqrt(disc)) / (2 * a);
+
+                        float t = (t1 < t2 ? t1 : t2);
+                        if(t < 0.0) {t = (t1 > t2 ? t1 : t2);}
+
+                        float aimX = asteroidX + t * asteroidVX;
+                        float aimY = asteroidY + t * asteroidVY;
+                        float aimDist = sqrt((aimX-shipX)*(aimX-shipX) + (aimY-shipY)*(aimY-shipY));
+
+                        inputs->mouseX = aimX;
+                        inputs->mouseY = aimY;
+
+                        if(aimDist <= 200.0)
+                        {
+                            inputs->selected = 0;
+                            inputs->use = true;
+                        }
+
+                        Entity newEntity = manager->em.getEntity();
+                        if(newEntity != invalidEntity)
+                        {
+                            manager->addEntityComponent<Transform>(newEntity, Transform(aimX, aimY, 0.0));
+                            manager->addEntityComponent<Size>(newEntity, Size(3.0));
+                            manager->addEntityComponent<Render>(newEntity, Render(220, 20, 20));
+                            manager->remove.push_back(newEntity);
+                        }
+                    }
+                }
 
                 float dx = closestX - transform1->x;
                 float dy = closestY - transform1->y;
@@ -715,14 +770,9 @@ class AISystem : public System
                 dx = (dx > 512/2 ? 512-dx : dx);
                 dy = (dy > 512/2 ? 512-dy : dy);
 
-                inputs->up = false;
-                inputs->down = false;
-                inputs->left = false;
-                inputs->right = false;
-
-                if(dx > 0)
+                if(dx > 100)
                 {
-                    if(velocity->x < 3.0)
+                    if(velocity->x < 100.0)
                     {
                         inputs->right = true;
                     }
@@ -731,9 +781,9 @@ class AISystem : public System
                         inputs->left = true;
                     }
                 }
-                else
+                else if(dx < -100)
                 {
-                    if(velocity->x > -3.0)
+                    if(velocity->x > -100.0)
                     {
                         inputs->left = true;
                     }
@@ -742,10 +792,18 @@ class AISystem : public System
                         inputs->right = true;
                     }
                 }
-
-                if(dy > 0)
+                else if(dx > 0)
                 {
-                    if(velocity->y < 3.0)
+                    inputs->left = true;
+                }
+                else if(dx < 0)
+                {
+                    inputs->right = true;
+                }
+
+                if(dy > 100)
+                {
+                    if(velocity->y < 100.0)
                     {
                         inputs->up = true;
                     }
@@ -754,9 +812,9 @@ class AISystem : public System
                         inputs->down = true;
                     }
                 }
-                else
+                else if(dy < -100)
                 {
-                    if(velocity->y > -3.0)
+                    if(velocity->y > -100.0)
                     {
                         inputs->down = true;
                     }
@@ -764,6 +822,14 @@ class AISystem : public System
                     {
                         inputs->up = true;
                     }
+                }
+                else if(dy > 0)
+                {
+                    inputs->down = true;
+                }
+                else if(dy < 0)
+                {
+                    inputs->up = true;
                 }
             }
         }

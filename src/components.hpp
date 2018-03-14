@@ -28,17 +28,13 @@ class Transform
 class Velocity
 {
     public:
-        Velocity() : speed(0.0), x(0.0), y(1.0)
+        Velocity() : x(0.0), y(0.0)
         {
         }
-        explicit Velocity(float s) : speed(s), x(0.0), y(0.0)
-        {
-        }
-        Velocity(float s, float radians) : speed(s), x(cos(radians)), y(sin(radians))
+        Velocity(float s, float dir) : x(s*cos(dir)), y(s*sin(dir))
         {
         }
         static const Component id;
-        float speed;
         float x;
         float y;
     private:

@@ -76,10 +76,11 @@ int main()
 
     // Add the player
     Entity playerEntity = m.em.getEntity();
+/*
     if(playerEntity != invalidEntity)
     {
         m.addEntityComponent<Transform>(playerEntity, Transform(RAND_BETWEEN(0.25*512, 0.75*512), RAND_BETWEEN(0.25*512, 0.75*512), 0.0));
-        m.addEntityComponent<Velocity>(playerEntity, Velocity(80.0, RAND_BETWEEN(0, 2 * 3.142)));
+        m.addEntityComponent<Velocity>(playerEntity, Velocity(0.0, RAND_BETWEEN(0, 2 * 3.142)));
         m.addEntityComponent<Size>(playerEntity, Size(15.0));
         m.addEntityComponent<Render>(playerEntity, Render(1));
         m.addEntityComponent<Inputs>(playerEntity, Inputs());
@@ -88,13 +89,13 @@ int main()
         m.addEntityComponent<Health>(playerEntity, Health(5));
         m.addEntityComponent<Player>(playerEntity, Player());
     }
-
+*/
     // Add en enemy
     Entity enemyEntity = m.em.getEntity();
     if(enemyEntity != invalidEntity)
     {
         m.addEntityComponent<Transform>(enemyEntity, Transform(RAND_BETWEEN(0.25*512, 0.75*512), RAND_BETWEEN(0.25*512, 0.75*512), 0.0));
-        m.addEntityComponent<Velocity>(enemyEntity, Velocity(80.0, RAND_BETWEEN(0, 2 * 3.142)));
+        m.addEntityComponent<Velocity>(enemyEntity, Velocity(0.0, RAND_BETWEEN(0, 2 * 3.142)));
         m.addEntityComponent<Size>(enemyEntity, Size(15.0));
         m.addEntityComponent<Render>(enemyEntity, Render(1));
         m.addEntityComponent<Inputs>(enemyEntity, Inputs());
@@ -105,7 +106,7 @@ int main()
     }
 
     // Add the asteroids
-    for(int i = 0; i < 10; ++i)
+    for(int i = 0; i < 20; ++i)
     {
         Entity e = m.em.getEntity();
         if(e != invalidEntity)
@@ -251,14 +252,17 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         auto a = m.getEntityComponent<Inputs>(playerEntity);
-        a->left = left;
-        a->right = right;
-        a->up = up;
-        a->down = down;
-        a->use = use;
-        a->mouseX = x;
-        a->mouseY = 512 - y;
-        a->selected = selected;
+        if(a != NULL)
+        {
+            a->left = left;
+            a->right = right;
+            a->up = up;
+            a->down = down;
+            a->use = use;
+            a->mouseX = x;
+            a->mouseY = 512 - y;
+            a->selected = selected;
+        }
 
         m.update(1.0/60);
 
