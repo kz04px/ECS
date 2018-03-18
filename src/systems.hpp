@@ -837,4 +837,85 @@ class AISystem : public System
 };
 
 
+class MineAISystem : public System
+{
+    public:
+        MineAISystem()
+        {
+            required.insert(MineAI::id);
+        }
+        void update(const float dt)
+        {
+            assert(manager != NULL);
+
+            auto &mineAIStore = manager->cm.getStore<MineAI>();
+            auto &inputsStore = manager->cm.getStore<Inputs>();
+            auto &transformStore = manager->cm.getStore<Transform>();
+
+            auto ships = manager->cm.components[Ship::id];
+            for(auto e : entities)
+            {
+                auto mineAI = mineAIStore.getComponent(e);
+                auto inputs = inputsStore.getComponent(e);
+
+                // Reset inputs
+                inputs->up = false;
+                inputs->down = false;
+                inputs->left = false;
+                inputs->right = false;
+                inputs->selected = 0;
+                inputs->use = false;
+
+                if(mineAI->aggressive == false)
+                {
+                    continue;
+                }
+
+                float closestDx = 0.0;
+                float closestDy = 0.0;
+                float closestDist = 1000000;
+
+                auto transform1 = transformStore.getComponent(e);
+                for(auto s : ships)
+                {
+                    auto transform2 = transformStore.getComponent(s);
+
+                    float dx = transform2->x - transform1->x;
+                    float dy = transform2->y - transform1->y;
+
+                    float dist = sqrt(dx*dx + dy*dy);
+                    if(dist < closestDist)
+                    {
+                        closestDx = dx;
+                        closestDy = dy;
+                        closestDist = dist;
+                    }
+                }
+
+                if(closestDist <= 200.0)
+                {
+                    if(closestDx > 0.0)
+                    {
+                        inputs->right = true;
+                    }
+                    else
+                    {
+                        inputs->left = true;
+                    }
+
+                    if(closestDy < 0.0)
+                    {
+                        inputs->down = true;
+                    }
+                    else
+                    {
+                        inputs->up = true;
+                    }
+                }
+            }
+        }
+    private:
+};
+
+
 #endif

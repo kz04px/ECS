@@ -57,10 +57,13 @@ int main()
     m.createComponent<Fade>();
     m.createComponent<Player>();
     m.createComponent<AI>();
+    m.createComponent<MineAI>();
+    m.createComponent<Ship>();
 
     // Systems have to be created to run
     auto inputSystem = new InputSystem();
     m.createSystem<AISystem>(new AISystem());
+    m.createSystem<MineAISystem>(new MineAISystem());
     m.createSystem<MovementSystem>(new MovementSystem());
     m.createSystem<InputSystem>(inputSystem);
     m.createSystem<WeaponSystem>(new WeaponSystem());
@@ -88,21 +91,26 @@ int main()
         m.addEntityComponent<Collision>(playerEntity, Collision(1, true));
         m.addEntityComponent<Health>(playerEntity, Health(5));
         m.addEntityComponent<Player>(playerEntity, Player());
+        m.addEntityComponent<Ship>(playerEntity, Ship());
     }
 */
     // Add en enemy
-    Entity enemyEntity = m.em.getEntity();
-    if(enemyEntity != invalidEntity)
+    for(int i = 0; i < 1; ++i)
     {
-        m.addEntityComponent<Transform>(enemyEntity, Transform(RAND_BETWEEN(0.25*512, 0.75*512), RAND_BETWEEN(0.25*512, 0.75*512), 0.0));
-        m.addEntityComponent<Velocity>(enemyEntity, Velocity(0.0, RAND_BETWEEN(0, 2 * 3.142)));
-        m.addEntityComponent<Size>(enemyEntity, Size(15.0));
-        m.addEntityComponent<Render>(enemyEntity, Render(1));
-        m.addEntityComponent<Inputs>(enemyEntity, Inputs());
-        m.addEntityComponent<Weapon>(enemyEntity, Weapon());
-        m.addEntityComponent<Collision>(enemyEntity, Collision(1, true));
-        m.addEntityComponent<Health>(enemyEntity, Health(5));
-        m.addEntityComponent<AI>(enemyEntity, AI());
+        Entity enemyEntity = m.em.getEntity();
+        if(enemyEntity != invalidEntity)
+        {
+            m.addEntityComponent<Transform>(enemyEntity, Transform(RAND_BETWEEN(0.25*512, 0.75*512), RAND_BETWEEN(0.25*512, 0.75*512), 0.0));
+            m.addEntityComponent<Velocity>(enemyEntity, Velocity(0.0, RAND_BETWEEN(0, 2 * 3.142)));
+            m.addEntityComponent<Size>(enemyEntity, Size(15.0));
+            m.addEntityComponent<Render>(enemyEntity, Render(1));
+            m.addEntityComponent<Inputs>(enemyEntity, Inputs());
+            m.addEntityComponent<Weapon>(enemyEntity, Weapon());
+            m.addEntityComponent<Collision>(enemyEntity, Collision(1, true));
+            m.addEntityComponent<Health>(enemyEntity, Health(5));
+            m.addEntityComponent<AI>(enemyEntity, AI());
+            m.addEntityComponent<Ship>(enemyEntity, Ship());
+        }
     }
 
     // Add the asteroids
@@ -119,6 +127,24 @@ int main()
             m.addEntityComponent<Collision>(e, Collision(3, false));
             m.addEntityComponent<Health>(e, Health(2));
             m.addEntityComponent<Asteroid>(e, Asteroid());
+        }
+    }
+
+    // Add the mines
+    for(int i = 0; i < 2; ++i)
+    {
+        Entity mineEntity = m.em.getEntity();
+        if(mineEntity != invalidEntity)
+        {
+            m.addEntityComponent<Transform>(mineEntity, Transform(RAND_BETWEEN(0, 512), RAND_BETWEEN(0, 512), RAND_BETWEEN(0, 2 * 3.142)));
+            m.addEntityComponent<Velocity>(mineEntity, Velocity(0.0, RAND_BETWEEN(0, 2 * 3.142)));
+            m.addEntityComponent<Size>(mineEntity, Size(3.0));
+            m.addEntityComponent<Render>(mineEntity, Render(20, 200, 20));
+            m.addEntityComponent<Inputs>(mineEntity, Inputs());
+            m.addEntityComponent<Collision>(mineEntity, Collision(3, false));
+            m.addEntityComponent<Health>(mineEntity, Health(1));
+            m.addEntityComponent<MineAI>(mineEntity, MineAI());
+            m.addEntityComponent<Explode>(mineEntity, Explode());
         }
     }
 

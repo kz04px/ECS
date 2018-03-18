@@ -285,6 +285,30 @@ class AI
 };
 
 
+class MineAI
+{
+    public:
+        MineAI() : aggressive(true), timer(0.0)
+        {
+        }
+        static const Component id;
+        bool aggressive;
+        float timer;
+    private:
+};
+
+
+class Ship
+{
+    public:
+        Ship()
+        {
+        }
+        static const Component id;
+    private:
+};
+
+
 const Component Transform::id = 0;
 const Component Velocity::id = 1;
 const Component Size::id = 2;
