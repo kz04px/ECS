@@ -1,8 +1,19 @@
-Entity Component System (ECS)
+### About
+An Entity Component System (ECS) written in C++<br/>
+[Wikipedia](https://en.wikipedia.org/wiki/Entity%E2%80%93component%E2%80%93system)
 
-Still a work in progress and currently lacks some features like an events system. An example using SDL2 is included to show how the ECS is used.
-https://en.wikipedia.org/wiki/Entity%E2%80%93component%E2%80%93system
+---
+### Build
+```bash
+git clone https://github.com/kz04px/ecs
+cd ./ecs
+make
+```
 
-Example program requires:
--- SDL2
--- SDL2_image
+---
+### Status
+Still a work in progress. Some potential features currently lacking, like an events system.
+
+---
+### Example
+A rough asteroids clone serves as an example of how to use the ECS. SDL2 and SDL2_image are required.
