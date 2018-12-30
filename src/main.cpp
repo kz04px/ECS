@@ -158,27 +158,6 @@ int main()
     int selected = 0;
 
 
-#ifdef BENCHMARK
-    int frames = 100000;
-    clock_t start = clock();
-    for(int i = 0; i < frames; ++i)
-    {
-        m.update(0.1);
-    }
-    clock_t end = clock();
-    double timeTaken = (double)(end-start)/CLOCKS_PER_SEC;
-    double timePer = timeTaken/frames;
-    std::cout << "Frames: " << frames << std::endl;
-    std::cout << "Time: " << timeTaken << "s" << std::endl;
-    std::cout << "30 FPS:  " << 1000*(1.0/30.0) << "ms" << std::endl;
-    std::cout << "60 FPS:  " << 1000*(1.0/60.0) << "ms" << std::endl;
-    std::cout << "120 FPS: " << 1000*(1.0/120.0) << "ms" << std::endl;
-    std::cout << "Max FPS: " << 1/timePer << std::endl;
-    std::cout << "Per frame: " << 1000*timePer << "ms" << std::endl;
-    return 0;
-#endif
-
-
     bool quitting = false;
     while(!quitting)
     {
