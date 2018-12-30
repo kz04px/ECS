@@ -1,24 +1,20 @@
 #ifndef COMPONENT_MANAGER_HPP
 #define COMPONENT_MANAGER_HPP
 
-
 #include <iostream>
 #include <set>
 #include <unordered_map>
 #include <memory>
 
-
 typedef uint32_t Entity;
 typedef uint32_t Component;
-
 
 class Store
 {
     public:
         virtual ~Store() = default;
-        virtual void removeEntity(const Entity e) = 0;
+        virtual void remove_entity(const Entity e) = 0;
 };
-
 
 template<typename T>
 class ComponentStore : public Store
@@ -27,15 +23,15 @@ class ComponentStore : public Store
         ComponentStore(const Component id_) : Store(), id(id_)
         {
         }
-        void addEntity(const Entity e, T t)
+        void add_entity(const Entity e, T t)
         {
             components.insert(std::pair<Entity, T>(e, t));
         }
-        void removeEntity(const Entity e)
+        void remove_entity(const Entity e)
         {
             components.erase(e);
         }
-        T* getComponent(const Entity e)
+        T* get_component(const Entity e)
         {
             return &components[e];
         }
@@ -51,7 +47,6 @@ class ComponentStore : public Store
         std::unordered_map<Entity, T> components;
     private:
 };
-
 
 class ComponentManager
 {
@@ -82,11 +77,11 @@ class ComponentManager
             }
         }
         template<typename T>
-        void addComponent()
+        void add_component()
         {
             stores[T::id].reset(static_cast<Store*>(new ComponentStore<T>(T::id)));
         }
-        void removeEntity(const Entity e)
+        void remove_entity(const Entity e)
         {
             for(auto &component : components)
             {
@@ -94,15 +89,15 @@ class ComponentManager
             }
             for(auto &store : stores)
             {
-                store.second->removeEntity(e);
+                store.second->remove_entity(e);
             }
         }
         template<typename T>
-        ComponentStore<T>& getStore()
+        ComponentStore<T>& get_store()
         {
             return dynamic_cast<ComponentStore<T>&>(*stores[T::id]);
         }
-        bool entityHasComponent(const Entity e, const Component c)
+        bool entity_has_component(const Entity e, const Component c)
         {
             return components[c].find(e) != components[c].end();
         }
@@ -111,6 +106,5 @@ class ComponentManager
         std::unordered_map<Component, std::unique_ptr<Store>> stores;
     private:
 };
-
 
 #endif

@@ -4,9 +4,7 @@
 #include <cmath>
 #include "ecs.hpp"
 
-
 #define RAND_BETWEEN(a, b) ((double)rand()/RAND_MAX * (b-a) + a)
-
 
 class Transform
 {
@@ -24,7 +22,6 @@ class Transform
     private:
 };
 
-
 class Velocity
 {
     public:
@@ -40,7 +37,6 @@ class Velocity
     private:
 };
 
-
 class Size
 {
     public:
@@ -52,7 +48,6 @@ class Size
         float radius;
     private:
 };
-
 
 class Render
 {
@@ -75,11 +70,10 @@ class Render
     private:
 };
 
-
 class Inputs
 {
     public:
-        Inputs() : left(false), right(false), up(false), down(false), use(false), mouseX(0.0), mouseY(0.0), selected(0)
+        Inputs() : left(false), right(false), up(false), down(false), use(false), mouse_x(0.0), mouse_y(0.0), selected(0)
         {
         }
         static const Component id;
@@ -88,12 +82,11 @@ class Inputs
         bool up;
         bool down;
         bool use;
-        int mouseX;
-        int mouseY;
+        int mouse_x;
+        int mouse_y;
         int selected;
     private:
 };
-
 
 class Remove
 {
@@ -106,38 +99,35 @@ class Remove
     private:
 };
 
-
 class Weapon
 {
     public:
-        Weapon() : timeLeft(0.0)
+        Weapon() : time_left(0.0)
         {
         }
         static const Component id;
-        float timeLeft;
+        float time_left;
     private:
 };
-
 
 class Timer
 {
     public:
-        Timer() : timeLeft(3.0)
+        Timer() : time_left(3.0)
         {
         }
-        explicit Timer(float timeLeft) : timeLeft(timeLeft)
+        explicit Timer(float time_left) : time_left(time_left)
         {
         }
         static const Component id;
-        float timeLeft;
+        float time_left;
     private:
 };
-
 
 class Projectile
 {
     public:
-        Projectile() : owner(invalidEntity), damage(1)
+        Projectile() : owner(invalid_entity), damage(1)
         {
         }
         Projectile(Entity e, int damage) : owner(e), damage(damage)
@@ -149,23 +139,21 @@ class Projectile
     private:
 };
 
-
 class Rocket
 {
     public:
-        Rocket() : owner(invalidEntity), damage(1), boostTimeLeft(1.0)
+        Rocket() : owner(invalid_entity), damage(1), boost_time_left(1.0)
         {
         }
-        Rocket(Entity e, int d, float t) : owner(e), damage(d), boostTimeLeft(t)
+        Rocket(Entity e, int d, float t) : owner(e), damage(d), boost_time_left(t)
         {
         }
         static const Component id;
         Entity owner;
         int damage;
-        float boostTimeLeft;
+        float boost_time_left;
     private:
 };
-
 
 class Collision
 {
@@ -183,23 +171,21 @@ class Collision
     private:
 };
 
-
 class Health
 {
     public:
-        Health() : startHealth(1), health(1), immunity(0.0)
+        Health() : start_health(1), health(1), immunity(0.0)
         {
         }
-        explicit Health(int health) : startHealth(health), health(health), immunity(0.0)
+        explicit Health(int health) : start_health(health), health(health), immunity(0.0)
         {
         }
         static const Component id;
-        int startHealth;
+        int start_health;
         int health;
         float immunity;
     private:
 };
-
 
 class Asteroid
 {
@@ -210,7 +196,6 @@ class Asteroid
         static const Component id;
     private:
 };
-
 
 class Trail
 {
@@ -228,7 +213,6 @@ class Trail
     private:
 };
 
-
 class Explode
 {
     public:
@@ -244,22 +228,20 @@ class Explode
     private:
 };
 
-
 class Fade
 {
     public:
-        Fade() : fadeTime(1.0), time(0.0)
+        Fade() : fade_time(1.0), time(0.0)
         {
         }
-        Fade(float t) : fadeTime(t), time(0.0)
+        Fade(float t) : fade_time(t), time(0.0)
         {
         }
         static const Component id;
-        float fadeTime;
+        float fade_time;
         float time;
     private:
 };
-
 
 class Player
 {
@@ -270,7 +252,6 @@ class Player
         static const Component id;
     private:
 };
-
 
 class AI
 {
@@ -284,7 +265,6 @@ class AI
     private:
 };
 
-
 class MineAI
 {
     public:
@@ -297,7 +277,6 @@ class MineAI
     private:
 };
 
-
 class Ship
 {
     public:
@@ -307,7 +286,6 @@ class Ship
         static const Component id;
     private:
 };
-
 
 const Component Transform::id = 0;
 const Component Velocity::id = 1;
@@ -326,8 +304,7 @@ const Component Explode::id = 13;
 const Component Fade::id = 14;
 const Component Player::id = 15;
 const Component AI::id = 16;
-const Component MineAI::id = 17; 
-const Component Ship::id = 18; 
-
+const Component MineAI::id = 17;
+const Component Ship::id = 18;
 
 #endif

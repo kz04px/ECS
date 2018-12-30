@@ -1,11 +1,9 @@
 #ifndef ECS_HPP
 #define ECS_HPP
 
-
 #include "entity_manager.hpp"
 #include "component_manager.hpp"
 #include "system_manager.hpp"
-
 
 class Manager
 {
@@ -23,31 +21,31 @@ class Manager
             std::cout << std::endl;
         }
         template<typename T>
-        void addEntityComponent(Entity e, T t)
+        void add_entity_component(Entity e, T t)
         {
-            assert(e != invalidEntity);
+            assert(e != invalid_entity);
 
-            em.allEntities.insert(e);
+            em.all_entities.insert(e);
             em.entities[e].insert(T::id);
             cm.components[T::id].insert(e);
-            cm.getStore<T>().addEntity(e, t);
-            sm.updateEntity(e, em.entities[e]);
+            cm.get_store<T>().add_entity(e, t);
+            sm.update_entity(e, em.entities[e]);
         }
         template<typename T>
-        T* getEntityComponent(const Entity e)
+        T* get_entity_component(const Entity e)
         {
-            return cm.getStore<T>().getComponent(e);
+            return cm.get_store<T>().get_component(e);
         }
         template<typename T>
-        void createComponent()
+        void create_component()
         {
-            cm.addComponent<T>();
+            cm.add_component<T>();
         }
         template<typename T>
-        void createSystem(T* t)
+        void create_system(T* t)
         {
             t->manager = this;
-            sm.addSystem<T>(t);
+            sm.add_system<T>(t);
         }
         void update(const float dt)
         {
@@ -55,9 +53,9 @@ class Manager
 
             for(auto e : remove)
             {
-                em.removeEntity(e);
-                cm.removeEntity(e);
-                sm.removeEntity(e);
+                em.remove_entity(e);
+                cm.remove_entity(e);
+                sm.remove_entity(e);
             }
             remove.clear();
         }
@@ -67,6 +65,5 @@ class Manager
         std::vector<Entity> remove;
     private:
 };
-
 
 #endif

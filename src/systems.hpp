@@ -1,10 +1,8 @@
 #ifndef SYSTEMS_HPP
 #define SYSTEMS_HPP
 
-
 #include "ecs.hpp"
 #include <SDL.h>
-
 
 class MovementSystem : public System
 {
@@ -16,18 +14,18 @@ class MovementSystem : public System
         }
         void update(const float dt)
         {
-            assert(manager != NULL);
+            assert(manager != nullptr);
 
-            auto &transformStore = manager->cm.getStore<Transform>();
-            auto &velocityStore = manager->cm.getStore<Velocity>();
+            auto &transform_store = manager->cm.get_store<Transform>();
+            auto &velocity_store = manager->cm.get_store<Velocity>();
 
             for(auto e : entities)
             {
-                assert(manager->cm.entityHasComponent(e, Transform::id));
-                assert(manager->cm.entityHasComponent(e, Velocity::id));
+                assert(manager->cm.entity_has_component(e, Transform::id));
+                assert(manager->cm.entity_has_component(e, Velocity::id));
 
-                auto transform = transformStore.getComponent(e);
-                auto velocity = velocityStore.getComponent(e);
+                auto transform = transform_store.get_component(e);
+                auto velocity = velocity_store.get_component(e);
 
                 transform->x += dt * velocity->x;
                 transform->y += dt * velocity->y;
@@ -42,11 +40,10 @@ class MovementSystem : public System
     private:
 };
 
-
 class RenderSystem : public System
 {
     public:
-        RenderSystem(SDL_Renderer *r, SDL_Texture *shipTexture) : renderer(r), shipTexture(shipTexture)
+        RenderSystem(SDL_Renderer *r, SDL_Texture *ship_texture) : renderer(r), ship_texture(ship_texture)
         {
             required.insert(Transform::id);
             required.insert(Render::id);
@@ -54,23 +51,23 @@ class RenderSystem : public System
         }
         void update(const float dt)
         {
-            assert(manager != NULL);
-            assert(renderer != NULL);
-            assert(shipTexture != NULL);
+            assert(manager != nullptr);
+            assert(renderer != nullptr);
+            assert(ship_texture != nullptr);
 
-            auto &transformStore = manager->cm.getStore<Transform>();
-            auto &sizeStore = manager->cm.getStore<Size>();
-            auto &renderStore = manager->cm.getStore<Render>();
+            auto &transform_store = manager->cm.get_store<Transform>();
+            auto &size_store = manager->cm.get_store<Size>();
+            auto &render_store = manager->cm.get_store<Render>();
 
             for(auto e : entities)
             {
-                assert(manager->cm.entityHasComponent(e, Transform::id));
-                assert(manager->cm.entityHasComponent(e, Render::id));
-                assert(manager->cm.entityHasComponent(e, Size::id));
+                assert(manager->cm.entity_has_component(e, Transform::id));
+                assert(manager->cm.entity_has_component(e, Render::id));
+                assert(manager->cm.entity_has_component(e, Size::id));
 
-                auto a = transformStore.getComponent(e);
-                auto b = sizeStore.getComponent(e);
-                auto c = renderStore.getComponent(e);
+                auto a = transform_store.get_component(e);
+                auto b = size_store.get_component(e);
+                auto c = render_store.get_component(e);
 
                 SDL_SetRenderDrawColor(renderer, c->red, c->green, c->blue, c->alpha);
 
@@ -86,8 +83,8 @@ class RenderSystem : public System
 
                         if(c->texture == 1)
                         {
-                            SDL_Point center = {b->radius, b->radius};
-                            SDL_RenderCopyEx(renderer, shipTexture, NULL, &rect, -a->rotation*180/3.142 + 90, &center, SDL_FLIP_NONE);
+                            SDL_Point center = {(int)b->radius, (int)b->radius};
+                            SDL_RenderCopyEx(renderer, ship_texture, nullptr, &rect, -a->rotation*180/3.142 + 90, &center, SDL_FLIP_NONE);
                         }
                         else
                         {
@@ -99,9 +96,8 @@ class RenderSystem : public System
         }
     private:
         SDL_Renderer *renderer;
-        SDL_Texture *shipTexture;
+        SDL_Texture *ship_texture;
 };
-
 
 class InputSystem : public System
 {
@@ -114,24 +110,24 @@ class InputSystem : public System
         }
         void update(const float dt)
         {
-            assert(manager != NULL);
+            assert(manager != nullptr);
 
-            auto &transformStore = manager->cm.getStore<Transform>();
-            auto &velocityStore = manager->cm.getStore<Velocity>();
-            auto &inputsStore   = manager->cm.getStore<Inputs>();
+            auto &transform_store = manager->cm.get_store<Transform>();
+            auto &velocity_store = manager->cm.get_store<Velocity>();
+            auto &inputs_store   = manager->cm.get_store<Inputs>();
 
             for(auto e : entities)
             {
-                assert(manager->cm.entityHasComponent(e, Transform::id));
-                assert(manager->cm.entityHasComponent(e, Velocity::id));
-                assert(manager->cm.entityHasComponent(e, Inputs::id));
+                assert(manager->cm.entity_has_component(e, Transform::id));
+                assert(manager->cm.entity_has_component(e, Velocity::id));
+                assert(manager->cm.entity_has_component(e, Inputs::id));
 
-                auto transform = transformStore.getComponent(e);
-                auto inputs = inputsStore.getComponent(e);
-                auto velocity = velocityStore.getComponent(e);
+                auto transform = transform_store.get_component(e);
+                auto inputs = inputs_store.get_component(e);
+                auto velocity = velocity_store.get_component(e);
 
-                float dx = inputs->mouseX - transform->x;
-                float dy = inputs->mouseY - transform->y;
+                float dx = inputs->mouse_x - transform->x;
+                float dy = inputs->mouse_y - transform->y;
                 transform->rotation = atan2(dy, dx);
 
                 if(inputs->left == true)       {velocity->x -= 5;}
@@ -139,16 +135,15 @@ class InputSystem : public System
                 if(inputs->up == true)         {velocity->y += 5;}
                 else if(inputs->down == true)  {velocity->y -= 5;}
 
-                const float speedLimit = 100.0;
-                if(velocity->x > speedLimit)       {velocity->x =  speedLimit;}
-                else if(velocity->x < -speedLimit) {velocity->x = -speedLimit;}
-                if(velocity->y > speedLimit)       {velocity->y =  speedLimit;}
-                else if(velocity->y < -speedLimit) {velocity->y = -speedLimit;}
+                const float speed_limit = 100.0;
+                if(velocity->x > speed_limit)       {velocity->x =  speed_limit;}
+                else if(velocity->x < -speed_limit) {velocity->x = -speed_limit;}
+                if(velocity->y > speed_limit)       {velocity->y =  speed_limit;}
+                else if(velocity->y < -speed_limit) {velocity->y = -speed_limit;}
             }
         }
     private:
 };
-
 
 class WeaponSystem : public System
 {
@@ -161,36 +156,36 @@ class WeaponSystem : public System
         }
         void update(const float dt)
         {
-            assert(manager != NULL);
+            assert(manager != nullptr);
 
-            auto &inputsStore = manager->cm.getStore<Inputs>();
-            auto &transformStore = manager->cm.getStore<Transform>();
-            auto &weaponStore = manager->cm.getStore<Weapon>();
+            auto &inputs_store = manager->cm.get_store<Inputs>();
+            auto &transform_store = manager->cm.get_store<Transform>();
+            auto &weapon_store = manager->cm.get_store<Weapon>();
 
             for(auto e : entities)
             {
-                assert(manager->cm.entityHasComponent(e, Weapon::id));
-                assert(manager->cm.entityHasComponent(e, Inputs::id));
-                assert(manager->cm.entityHasComponent(e, Transform::id));
+                assert(manager->cm.entity_has_component(e, Weapon::id));
+                assert(manager->cm.entity_has_component(e, Inputs::id));
+                assert(manager->cm.entity_has_component(e, Transform::id));
 
-                auto a = inputsStore.getComponent(e);
-                auto b = weaponStore.getComponent(e);
+                auto a = inputs_store.get_component(e);
+                auto b = weapon_store.get_component(e);
 
-                b->timeLeft -= dt;
+                b->time_left -= dt;
 
-                if(b->timeLeft < 0.0)
+                if(b->time_left < 0.0)
                 {
-                    b->timeLeft = 0.0;
+                    b->time_left = 0.0;
                 }
 
-                if(a->use == true && b->timeLeft <= 0.0)
+                if(a->use == true && b->time_left <= 0.0)
                 {
-                    b->timeLeft = 0.1;
+                    b->time_left = 0.1;
 
-                    Entity newEntity = manager->em.getEntity();
-                    if(newEntity != invalidEntity)
+                    Entity new_entity = manager->em.get_entity();
+                    if(new_entity != invalid_entity)
                     {
-                        auto transform = transformStore.getComponent(e);
+                        auto transform = transform_store.get_component(e);
 
                         float x = transform->x + 25.0*cos(transform->rotation);
                         float y = transform->y + 25.0*sin(transform->rotation);
@@ -198,27 +193,27 @@ class WeaponSystem : public System
                         if(a->selected == 0)
                         {
                             // Bullet
-                            manager->addEntityComponent<Transform>(newEntity, Transform(x, y, transform->rotation));
-                            manager->addEntityComponent<Velocity>(newEntity, Velocity(200.0, transform->rotation));
-                            manager->addEntityComponent<Render>(newEntity, Render(0,255,0));
-                            manager->addEntityComponent<Size>(newEntity, Size(1.0));
-                            manager->addEntityComponent<Timer>(newEntity, Timer(1.0));
-                            manager->addEntityComponent<Projectile>(newEntity, Projectile(e, 1));
-                            manager->addEntityComponent<Collision>(newEntity, Collision(2, true));
-                            manager->addEntityComponent<Health>(newEntity, Health());
+                            manager->add_entity_component<Transform>(new_entity, Transform(x, y, transform->rotation));
+                            manager->add_entity_component<Velocity>(new_entity, Velocity(200.0, transform->rotation));
+                            manager->add_entity_component<Render>(new_entity, Render(0,255,0));
+                            manager->add_entity_component<Size>(new_entity, Size(1.0));
+                            manager->add_entity_component<Timer>(new_entity, Timer(1.0));
+                            manager->add_entity_component<Projectile>(new_entity, Projectile(e, 1));
+                            manager->add_entity_component<Collision>(new_entity, Collision(2, true));
+                            manager->add_entity_component<Health>(new_entity, Health());
                         }
                         else if(a->selected == 1)
                         {
                             // Rocket
-                            manager->addEntityComponent<Transform>(newEntity, Transform(x, y, transform->rotation));
-                            manager->addEntityComponent<Velocity>(newEntity, Velocity(50.0, transform->rotation));
-                            manager->addEntityComponent<Render>(newEntity, Render(255,0,0));
-                            manager->addEntityComponent<Size>(newEntity, Size(2.0));
-                            manager->addEntityComponent<Timer>(newEntity, Timer(2.0));
-                            manager->addEntityComponent<Rocket>(newEntity, Rocket(e, 2, 0.5));
-                            manager->addEntityComponent<Collision>(newEntity, Collision(2, true));
-                            manager->addEntityComponent<Health>(newEntity, Health());
-                            manager->addEntityComponent<Explode>(newEntity, Explode());
+                            manager->add_entity_component<Transform>(new_entity, Transform(x, y, transform->rotation));
+                            manager->add_entity_component<Velocity>(new_entity, Velocity(50.0, transform->rotation));
+                            manager->add_entity_component<Render>(new_entity, Render(255,0,0));
+                            manager->add_entity_component<Size>(new_entity, Size(2.0));
+                            manager->add_entity_component<Timer>(new_entity, Timer(2.0));
+                            manager->add_entity_component<Rocket>(new_entity, Rocket(e, 2, 0.5));
+                            manager->add_entity_component<Collision>(new_entity, Collision(2, true));
+                            manager->add_entity_component<Health>(new_entity, Health());
+                            manager->add_entity_component<Explode>(new_entity, Explode());
                         }
                     }
                 }
@@ -226,7 +221,6 @@ class WeaponSystem : public System
         }
     private:
 };
-
 
 class RocketSystem : public System
 {
@@ -239,65 +233,65 @@ class RocketSystem : public System
         }
         void update(const float dt)
         {
-            assert(manager != NULL);
+            assert(manager != nullptr);
 
-            auto &rocketStore = manager->cm.getStore<Rocket>();
-            auto &transformStore = manager->cm.getStore<Transform>();
-            auto &velocityStore = manager->cm.getStore<Velocity>();
+            auto &rocket_store = manager->cm.get_store<Rocket>();
+            auto &transform_store = manager->cm.get_store<Transform>();
+            auto &velocity_store = manager->cm.get_store<Velocity>();
 
             for(auto e : entities)
             {
-                assert(manager->cm.entityHasComponent(e, Rocket::id));
-                assert(manager->cm.entityHasComponent(e, Transform::id));
-                assert(manager->cm.entityHasComponent(e, Velocity::id));
+                assert(manager->cm.entity_has_component(e, Rocket::id));
+                assert(manager->cm.entity_has_component(e, Transform::id));
+                assert(manager->cm.entity_has_component(e, Velocity::id));
 
-                auto r = rocketStore.getComponent(e);
+                auto r = rocket_store.get_component(e);
 
-                r->boostTimeLeft -= dt;
+                r->boost_time_left -= dt;
 
-                if(r->boostTimeLeft <= 0.0 && r->boostTimeLeft + dt > 0.0)
+                if(r->boost_time_left <= 0.0 && r->boost_time_left + dt > 0.0)
                 {
-                    auto v = velocityStore.getComponent(e);
+                    auto v = velocity_store.get_component(e);
                     v->x *= 5;
                     v->y *= 5;
-                    manager->addEntityComponent<Trail>(e, Trail());
+                    manager->add_entity_component<Trail>(e, Trail());
                 }
 
-                if(manager->cm.entityHasComponent(e, Trail::id))
+                if(manager->cm.entity_has_component(e, Trail::id))
                 {
                     if(rand()%2 == 0)
                     {
-                        Entity newEntity = manager->em.getEntity();
-                        if(newEntity != invalidEntity)
+                        Entity new_entity = manager->em.get_entity();
+                        if(new_entity != invalid_entity)
                         {
-                            auto transform = transformStore.getComponent(e);
+                            auto transform = transform_store.get_component(e);
 
-                            manager->addEntityComponent<Transform>(newEntity, Transform(
+                            manager->add_entity_component<Transform>(new_entity, Transform(
                                 transform->x + RAND_BETWEEN(-3.0, 3.0),
                                 transform->y + RAND_BETWEEN(-3.0, 3.0),
                                 RAND_BETWEEN(0, 2 * 3.142))
                             );
-                            manager->addEntityComponent<Size>(newEntity, Size(1.0));
+                            manager->add_entity_component<Size>(new_entity, Size(1.0));
                             int n = rand()%4;
                             if(n == 0)
                             {
-                                manager->addEntityComponent<Render>(newEntity, Render(220, 20, 20));
+                                manager->add_entity_component<Render>(new_entity, Render(220, 20, 20));
                             }
                             else if(n == 1)
                             {
-                                manager->addEntityComponent<Render>(newEntity, Render(220, 200, 20));
+                                manager->add_entity_component<Render>(new_entity, Render(220, 200, 20));
                             }
                             else if(n == 2)
                             {
-                                manager->addEntityComponent<Render>(newEntity, Render(220, 70, 20));
+                                manager->add_entity_component<Render>(new_entity, Render(220, 70, 20));
                             }
                             else
                             {
-                                manager->addEntityComponent<Render>(newEntity, Render(50, 20, 20));
+                                manager->add_entity_component<Render>(new_entity, Render(50, 20, 20));
                             }
                             float time = RAND_BETWEEN(0.5, 0.75);
-                            manager->addEntityComponent<Timer>(newEntity, Timer(time));
-                            manager->addEntityComponent<Fade>(newEntity, Fade(time));
+                            manager->add_entity_component<Timer>(new_entity, Timer(time));
+                            manager->add_entity_component<Fade>(new_entity, Fade(time));
                         }
                     }
                 }
@@ -305,7 +299,6 @@ class RocketSystem : public System
         }
     private:
 };
-
 
 class TimerSystem : public System
 {
@@ -316,19 +309,19 @@ class TimerSystem : public System
         }
         void update(const float dt)
         {
-            assert(manager != NULL);
+            assert(manager != nullptr);
 
-            auto &timerStore = manager->cm.getStore<Timer>();
+            auto &timer_store = manager->cm.get_store<Timer>();
 
             for(auto e : entities)
             {
-                assert(manager->cm.entityHasComponent(e, Timer::id));
+                assert(manager->cm.entity_has_component(e, Timer::id));
 
-                auto a = timerStore.getComponent(e);
+                auto a = timer_store.get_component(e);
 
-                a->timeLeft -= dt;
+                a->time_left -= dt;
 
-                if(a->timeLeft <= 0.0)
+                if(a->time_left <= 0.0)
                 {
                     manager->remove.push_back(e);
                 }
@@ -336,7 +329,6 @@ class TimerSystem : public System
         }
     private:
 };
-
 
 class CollisionSystem : public System
 {
@@ -349,21 +341,21 @@ class CollisionSystem : public System
         }
         void update(const float dt)
         {
-            assert(manager != NULL);
+            assert(manager != nullptr);
 
-            auto &collisionStore = manager->cm.getStore<Collision>();
-            auto &transformStore = manager->cm.getStore<Transform>();
-            auto &sizeStore = manager->cm.getStore<Size>();
+            auto &collision_store = manager->cm.get_store<Collision>();
+            auto &transform_store = manager->cm.get_store<Transform>();
+            auto &size_store = manager->cm.get_store<Size>();
 
             for(auto e : entities)
             {
-                assert(manager->cm.entityHasComponent(e, Collision::id));
-                assert(manager->cm.entityHasComponent(e, Transform::id));
-                assert(manager->cm.entityHasComponent(e, Size::id));
+                assert(manager->cm.entity_has_component(e, Collision::id));
+                assert(manager->cm.entity_has_component(e, Transform::id));
+                assert(manager->cm.entity_has_component(e, Size::id));
 
-                auto c = collisionStore.getComponent(e);
-                auto a = transformStore.getComponent(e);
-                auto r = sizeStore.getComponent(e);
+                auto c = collision_store.get_component(e);
+                auto a = transform_store.get_component(e);
+                auto r = size_store.get_component(e);
 
                 c->collided = false;
 
@@ -371,14 +363,14 @@ class CollisionSystem : public System
                 {
                     if(e == e2) {continue;} // FIXME: Try e <= e2
 
-                    auto c2 = collisionStore.getComponent(e2);
+                    auto c2 = collision_store.get_component(e2);
 
                     // FIXME: Test this
                     if(c->mask == c2->mask && c->self == false) {continue;}
                     //if((c->mask & c2->mask) == 0) {continue;}
 
-                    auto a2 = transformStore.getComponent(e2);
-                    auto r2 = sizeStore.getComponent(e2);
+                    auto a2 = transform_store.get_component(e2);
+                    auto r2 = size_store.get_component(e2);
 
                     float dx = a->x - a2->x;
                     float dy = a->y - a2->y;
@@ -395,7 +387,6 @@ class CollisionSystem : public System
     private:
 };
 
-
 class HealthSystem : public System
 {
     public:
@@ -405,15 +396,15 @@ class HealthSystem : public System
         }
         void update(const float dt)
         {
-            assert(manager != NULL);
+            assert(manager != nullptr);
 
-            auto &healthStore = manager->cm.getStore<Health>();
+            auto &health_store = manager->cm.get_store<Health>();
 
             for(auto e : entities)
             {
-                assert(manager->cm.entityHasComponent(e, Health::id));
+                assert(manager->cm.entity_has_component(e, Health::id));
 
-                auto h = healthStore.getComponent(e);
+                auto h = health_store.get_component(e);
 
                 h->immunity -= dt;
                 if(h->immunity < 0.0)
@@ -424,7 +415,6 @@ class HealthSystem : public System
         }
     private:
 };
-
 
 class DamageSystem : public System
 {
@@ -437,20 +427,20 @@ class DamageSystem : public System
         }
         void update(const float dt)
         {
-            assert(manager != NULL);
+            assert(manager != nullptr);
 
-            auto &collisionStore = manager->cm.getStore<Collision>();
-            auto &healthStore = manager->cm.getStore<Health>();
-            auto &transformStore = manager->cm.getStore<Transform>();
+            auto &collision_store = manager->cm.get_store<Collision>();
+            auto &health_store = manager->cm.get_store<Health>();
+            auto &transform_store = manager->cm.get_store<Transform>();
 
             for(auto e : entities)
             {
-                assert(manager->cm.entityHasComponent(e, Collision::id));
-                assert(manager->cm.entityHasComponent(e, Health::id));
-                assert(manager->cm.entityHasComponent(e, Transform::id));
+                assert(manager->cm.entity_has_component(e, Collision::id));
+                assert(manager->cm.entity_has_component(e, Health::id));
+                assert(manager->cm.entity_has_component(e, Transform::id));
 
-                auto c = collisionStore.getComponent(e);
-                auto h = healthStore.getComponent(e);
+                auto c = collision_store.get_component(e);
+                auto h = health_store.get_component(e);
 
                 if(c->collided == true && h->immunity <= 0.0)
                 {
@@ -461,41 +451,41 @@ class DamageSystem : public System
                     {
                         manager->remove.push_back(e);
 
-                        if(manager->cm.entityHasComponent(e, Explode::id))
+                        if(manager->cm.entity_has_component(e, Explode::id))
                         {
                             for(int i = 0; i < 20; ++i)
                             {
-                                Entity newEntity = manager->em.getEntity();
-                                if(newEntity != invalidEntity)
+                                Entity new_entity = manager->em.get_entity();
+                                if(new_entity != invalid_entity)
                                 {
-                                    auto transform = transformStore.getComponent(e);
+                                    auto transform = transform_store.get_component(e);
 
-                                    manager->addEntityComponent<Transform>(newEntity, Transform(
+                                    manager->add_entity_component<Transform>(new_entity, Transform(
                                         transform->x + RAND_BETWEEN(-4.0, 4.0)*RAND_BETWEEN(-4.0, 4.0),
                                         transform->y + RAND_BETWEEN(-4.0, 4.0)*RAND_BETWEEN(-4.0, 4.0),
                                         RAND_BETWEEN(0, 2 * 3.142))
                                     );
-                                    manager->addEntityComponent<Size>(newEntity, Size(5.0));
+                                    manager->add_entity_component<Size>(new_entity, Size(5.0));
                                     int n = rand()%4;
                                     if(n == 0)
                                     {
-                                        manager->addEntityComponent<Render>(newEntity, Render(220, 20, 20));
+                                        manager->add_entity_component<Render>(new_entity, Render(220, 20, 20));
                                     }
                                     else if(n == 1)
                                     {
-                                        manager->addEntityComponent<Render>(newEntity, Render(220, 200, 20));
+                                        manager->add_entity_component<Render>(new_entity, Render(220, 200, 20));
                                     }
                                     else if(n == 2)
                                     {
-                                        manager->addEntityComponent<Render>(newEntity, Render(220, 70, 20));
+                                        manager->add_entity_component<Render>(new_entity, Render(220, 70, 20));
                                     }
                                     else
                                     {
-                                        manager->addEntityComponent<Render>(newEntity, Render(50, 20, 20));
+                                        manager->add_entity_component<Render>(new_entity, Render(50, 20, 20));
                                     }
                                     float time = RAND_BETWEEN(0.1, 1.0);
-                                    manager->addEntityComponent<Timer>(newEntity, Timer(time));
-                                    manager->addEntityComponent<Fade>(newEntity, Fade(time));
+                                    manager->add_entity_component<Timer>(new_entity, Timer(time));
+                                    manager->add_entity_component<Fade>(new_entity, Fade(time));
                                 }
                             }
                         }
@@ -505,7 +495,6 @@ class DamageSystem : public System
         }
     private:
 };
-
 
 class AsteroidSystem : public System
 {
@@ -519,61 +508,61 @@ class AsteroidSystem : public System
         }
         void update(const float dt)
         {
-            assert(manager != NULL);
+            assert(manager != nullptr);
 
-            auto &transformStore = manager->cm.getStore<Transform>();
-            auto &sizeStore = manager->cm.getStore<Size>();
-            auto &healthStore = manager->cm.getStore<Health>();
+            auto &transform_store = manager->cm.get_store<Transform>();
+            auto &size_store = manager->cm.get_store<Size>();
+            auto &health_store = manager->cm.get_store<Health>();
 
             for(auto e : entities)
             {
-                assert(manager->cm.entityHasComponent(e, Transform::id));
-                assert(manager->cm.entityHasComponent(e, Size::id));
-                assert(manager->cm.entityHasComponent(e, Health::id));
+                assert(manager->cm.entity_has_component(e, Transform::id));
+                assert(manager->cm.entity_has_component(e, Size::id));
+                assert(manager->cm.entity_has_component(e, Health::id));
 
-                auto health = healthStore.getComponent(e);
-                auto size = sizeStore.getComponent(e);
+                auto health = health_store.get_component(e);
+                auto size = size_store.get_component(e);
 
                 if(health->health <= 0 && size->radius >= 6.0)
                 {
-                    auto transform = transformStore.getComponent(e);
+                    auto transform = transform_store.get_component(e);
 
                     // New asteroids
                     for(int i = 0; i < rand()%2+3; ++i)
                     {
-                        Entity newEntity = manager->em.getEntity();
-                        if(newEntity != invalidEntity)
+                        Entity new_entity = manager->em.get_entity();
+                        if(new_entity != invalid_entity)
                         {
                             int colour = RAND_BETWEEN(100, 200);
-                            manager->addEntityComponent<Transform>(newEntity, Transform(transform->x, transform->y, RAND_BETWEEN(0, 2 * 3.142)));
-                            manager->addEntityComponent<Velocity>(newEntity, Velocity(RAND_BETWEEN(50.0, 100.0), RAND_BETWEEN(0, 2 * 3.142)));
-                            manager->addEntityComponent<Size>(newEntity, Size(size->radius/2));
-                            manager->addEntityComponent<Render>(newEntity, Render(colour, colour, colour));
-                            manager->addEntityComponent<Collision>(newEntity, Collision(3, false));
-                            manager->addEntityComponent<Health>(newEntity, Health(health->startHealth - 1));
-                            manager->addEntityComponent<Asteroid>(newEntity, Asteroid());
+                            manager->add_entity_component<Transform>(new_entity, Transform(transform->x, transform->y, RAND_BETWEEN(0, 2 * 3.142)));
+                            manager->add_entity_component<Velocity>(new_entity, Velocity(RAND_BETWEEN(50.0, 100.0), RAND_BETWEEN(0, 2 * 3.142)));
+                            manager->add_entity_component<Size>(new_entity, Size(size->radius/2));
+                            manager->add_entity_component<Render>(new_entity, Render(colour, colour, colour));
+                            manager->add_entity_component<Collision>(new_entity, Collision(3, false));
+                            manager->add_entity_component<Health>(new_entity, Health(health->startHealth - 1));
+                            manager->add_entity_component<Asteroid>(new_entity, Asteroid());
                         }
                     }
 
                     // Pretty particles
                     for(int i = 0; i < rand()%5+20; ++i)
                     {
-                        Entity newEntity = manager->em.getEntity();
-                        if(newEntity != invalidEntity)
+                        Entity new_entity = manager->em.get_entity();
+                        if(new_entity != invalid_entity)
                         {
-                            manager->addEntityComponent<Transform>(newEntity, Transform(transform->x, transform->y, RAND_BETWEEN(0, 2 * 3.142)));
-                            manager->addEntityComponent<Velocity>(newEntity, Velocity(RAND_BETWEEN(150.0, 300.0), RAND_BETWEEN(0, 2 * 3.142)));
-                            manager->addEntityComponent<Size>(newEntity, Size(1.0));
+                            manager->add_entity_component<Transform>(new_entity, Transform(transform->x, transform->y, RAND_BETWEEN(0, 2 * 3.142)));
+                            manager->add_entity_component<Velocity>(new_entity, Velocity(RAND_BETWEEN(150.0, 300.0), RAND_BETWEEN(0, 2 * 3.142)));
+                            manager->add_entity_component<Size>(new_entity, Size(1.0));
                             if(rand()%2 == 0)
                             {
-                                manager->addEntityComponent<Render>(newEntity, Render(220, 20, 20));
+                                manager->add_entity_component<Render>(new_entity, Render(220, 20, 20));
                             }
                             else
                             {
-                                manager->addEntityComponent<Render>(newEntity, Render(220, 140, 20));
+                                manager->add_entity_component<Render>(new_entity, Render(220, 140, 20));
                             }
-                            manager->addEntityComponent<Timer>(newEntity, Timer(0.5));
-                            manager->addEntityComponent<Fade>(newEntity, Fade(0.5));
+                            manager->add_entity_component<Timer>(new_entity, Timer(0.5));
+                            manager->add_entity_component<Fade>(new_entity, Fade(0.5));
                         }
                     }
                 }
@@ -581,7 +570,6 @@ class AsteroidSystem : public System
         }
     private:
 };
-
 
 class FadeSystem : public System
 {
@@ -592,23 +580,23 @@ class FadeSystem : public System
         }
         void update(const float dt)
         {
-            assert(manager != NULL);
+            assert(manager != nullptr);
 
-            auto &fadeStore = manager->cm.getStore<Fade>();
-            auto &renderStore = manager->cm.getStore<Render>();
+            auto &fade_store = manager->cm.get_store<Fade>();
+            auto &render_store = manager->cm.get_store<Render>();
 
             for(auto e : entities)
             {
-                assert(manager->cm.entityHasComponent(e, Fade::id));
+                assert(manager->cm.entity_has_component(e, Fade::id));
 
-                auto fade = fadeStore.getComponent(e);
-                auto render = renderStore.getComponent(e);
+                auto fade = fade_store.get_component(e);
+                auto render = render_store.get_component(e);
 
                 fade->time += dt;
 
-                if(fade->time < fade->fadeTime)
+                if(fade->time < fade->fade_time)
                 {
-                    render->alpha = 255*(1.0 - fade->time / fade->fadeTime);
+                    render->alpha = 255*(1.0 - fade->time / fade->fade_time);
                 }
                 else
                 {
@@ -618,7 +606,6 @@ class FadeSystem : public System
         }
     private:
 };
-
 
 class AISystem : public System
 {
@@ -631,22 +618,22 @@ class AISystem : public System
         }
         void update(const float dt)
         {
-            assert(manager != NULL);
+            assert(manager != nullptr);
 
-            auto &aiStore = manager->cm.getStore<AI>();
-            auto &inputsStore = manager->cm.getStore<Inputs>();
-            auto &transformStore = manager->cm.getStore<Transform>();
-            auto &velocityStore = manager->cm.getStore<Velocity>();
+            auto &ai_store = manager->cm.get_store<AI>();
+            auto &inputs_store = manager->cm.get_store<Inputs>();
+            auto &transform_store = manager->cm.get_store<Transform>();
+            auto &velocity_store = manager->cm.get_store<Velocity>();
 
             auto players = manager->cm.components[Player::id];
             auto asteroids = manager->cm.components[Asteroid::id];
 
             for(auto e : entities)
             {
-                auto transform1 = transformStore.getComponent(e);
-                auto inputs = inputsStore.getComponent(e);
-                auto ai = aiStore.getComponent(e);
-                auto velocity = velocityStore.getComponent(e);
+                auto transform1 = transform_store.get_component(e);
+                auto inputs = inputs_store.get_component(e);
+                auto ai = ai_store.get_component(e);
+                auto velocity = velocity_store.get_component(e);
 
                 // Reset inputs
                 inputs->up = false;
@@ -656,12 +643,12 @@ class AISystem : public System
                 inputs->selected = 0;
                 inputs->use = false;
 
-                float closestDist = 1000000;
-                float closestX = 0.0;
-                float closestY = 0.0;
+                float closest_dist = 1000000;
+                float closest_x = 0.0;
+                float closest_y = 0.0;
 
-                Entity closestPlayer = invalidEntity;
-                Entity closestAsteroid = invalidEntity;
+                Entity closest_player = invalid_entity;
+                Entity closest_asteroid = invalid_entity;
 
                 ai->timer += dt;
 
@@ -669,7 +656,7 @@ class AISystem : public System
                 {
                     for(auto p : players)
                     {
-                        auto transform2 = transformStore.getComponent(p);
+                        auto transform2 = transform_store.get_component(p);
 
                         float dx = transform2->x - transform1->x;
                         //if(fabs(dx) > 200.0) {continue;}
@@ -677,19 +664,19 @@ class AISystem : public System
                         //if(fabs(dy) > 200.0) {continue;}
 
                         float dist = sqrt(dx*dx + dy*dy);
-                        if(dist < closestDist)
+                        if(dist < closest_dist)
                         {
-                            closestDist = dist;
-                            closestX = transform2->x;
-                            closestY = transform2->y;
-                            closestPlayer = p;
+                            closest_dist = dist;
+                            closest_x = transform2->x;
+                            closest_y = transform2->y;
+                            closest_player = p;
                         }
-                    } 
+                    }
                 }
 
                 for(auto a : asteroids)
                 {
-                    auto transform2 = transformStore.getComponent(a);
+                    auto transform2 = transform_store.get_component(a);
 
                     float dx = transform2->x - transform1->x;
                     //if(fabs(dx) > 200.0) {continue;}
@@ -697,40 +684,38 @@ class AISystem : public System
                     //if(fabs(dy) > 200.0) {continue;}
 
                     float dist = sqrt(dx*dx + dy*dy);
-                    if(dist < closestDist)
+                    if(dist < closest_dist)
                     {
-                        closestDist = dist;
-                        closestX = transform2->x;
-                        closestY = transform2->y;
-                        closestAsteroid = a;
+                        closest_dist = dist;
+                        closest_x = transform2->x;
+                        closest_y = transform2->y;
+                        closest_asteroid = a;
                     }
                 }
 
-
                 float barrel = 25.0;
-                if(closestAsteroid != invalidEntity && closestDist >= barrel)
+                if(closest_asteroid != invalid_entity && closest_dist >= barrel)
                 {
                     // Predict where we're aiming
-                    auto asteroidTransform = transformStore.getComponent(closestAsteroid);
-                    auto asteroidVelocity = velocityStore.getComponent(closestAsteroid);
+                    auto asteroid_transform = transform_store.get_component(closest_asteroid);
+                    auto asteroid_velocity = velocity_store.get_component(closest_asteroid);
 
-                    float shipX = transform1->x;
-                    float shipY = transform1->y;
+                    float ship_x = transform1->x;
+                    float ship_y = transform1->y;
 
-                    float asteroidX = asteroidTransform->x;
-                    float asteroidY = asteroidTransform->y;
+                    float asteroid_x = asteroid_transform->x;
+                    float asteroid_y = asteroid_transform->y;
 
-                    float asteroidVX = asteroidVelocity->x;
-                    float asteroidVY = asteroidVelocity->y;
+                    float asteroid_vx = asteroid_velocity->x;
+                    float asteroid_vy = asteroid_velocity->y;
 
+                    float bullet_speed = 200;
 
-                    float bulletSpeed = 200;
-
-                    float a = asteroidVX*asteroidVX + asteroidVY*asteroidVY - bulletSpeed*bulletSpeed;
+                    float a = asteroid_vx*asteroid_vx + asteroid_vy*asteroid_vy - bullet_speed*bullet_speed;
                     if(a != 0.0)
                     {
-                        float b = 2*(asteroidVX * (asteroidX - shipX) + asteroidVY * (asteroidY - shipY) - bulletSpeed*barrel);
-                        float c = (asteroidX-shipX)*(asteroidX-shipX) + (asteroidY-shipY)*(asteroidY-shipY) - barrel*barrel;
+                        float b = 2*(asteroid_vx * (asteroid_x - ship_x) + asteroid_vy * (asteroid_y - ship_y) - bullet_speed*barrel);
+                        float c = (asteroid_x-ship_x)*(asteroid_x-ship_x) + (asteroid_y-ship_y)*(asteroid_y-ship_y) - barrel*barrel;
 
                         float disc = b*b - 4*a*c;
 
@@ -740,32 +725,32 @@ class AISystem : public System
                         float t = (t1 < t2 ? t1 : t2);
                         if(t < 0.0) {t = (t1 > t2 ? t1 : t2);}
 
-                        float aimX = asteroidX + t * asteroidVX;
-                        float aimY = asteroidY + t * asteroidVY;
-                        float aimDist = sqrt((aimX-shipX)*(aimX-shipX) + (aimY-shipY)*(aimY-shipY));
+                        float aim_x = asteroid_x + t * asteroid_vx;
+                        float aim_y = asteroid_y + t * asteroid_vy;
+                        float aim_dist = sqrt((aim_x-ship_x)*(aim_x-ship_x) + (aim_y-ship_y)*(aim_y-ship_y));
 
-                        inputs->mouseX = aimX;
-                        inputs->mouseY = aimY;
+                        inputs->mouse_x = aim_x;
+                        inputs->mouse_y = aim_y;
 
-                        if(aimDist <= 200.0)
+                        if(aim_dist <= 200.0)
                         {
                             inputs->selected = 0;
                             inputs->use = true;
                         }
 
-                        Entity newEntity = manager->em.getEntity();
-                        if(newEntity != invalidEntity)
+                        Entity new_entity = manager->em.get_entity();
+                        if(new_entity != invalid_entity)
                         {
-                            manager->addEntityComponent<Transform>(newEntity, Transform(aimX, aimY, 0.0));
-                            manager->addEntityComponent<Size>(newEntity, Size(3.0));
-                            manager->addEntityComponent<Render>(newEntity, Render(220, 20, 20));
-                            manager->remove.push_back(newEntity);
+                            manager->add_entity_component<Transform>(new_entity, Transform(aim_x, aim_y, 0.0));
+                            manager->add_entity_component<Size>(new_entity, Size(3.0));
+                            manager->add_entity_component<Render>(new_entity, Render(220, 20, 20));
+                            manager->remove.push_back(new_entity);
                         }
                     }
                 }
 
-                float dx = closestX - transform1->x;
-                float dy = closestY - transform1->y;
+                float dx = closest_x - transform1->x;
+                float dy = closest_y - transform1->y;
 
                 dx = (dx > 512/2 ? 512-dx : dx);
                 dy = (dy > 512/2 ? 512-dy : dy);
@@ -836,7 +821,6 @@ class AISystem : public System
     private:
 };
 
-
 class MineAISystem : public System
 {
     public:
@@ -846,17 +830,17 @@ class MineAISystem : public System
         }
         void update(const float dt)
         {
-            assert(manager != NULL);
+            assert(manager != nullptr);
 
-            auto &mineAIStore = manager->cm.getStore<MineAI>();
-            auto &inputsStore = manager->cm.getStore<Inputs>();
-            auto &transformStore = manager->cm.getStore<Transform>();
+            auto &mine_ai_store = manager->cm.get_store<MineAI>();
+            auto &inputs_store = manager->cm.get_store<Inputs>();
+            auto &transform_store = manager->cm.get_store<Transform>();
 
             auto ships = manager->cm.components[Ship::id];
             for(auto e : entities)
             {
-                auto mineAI = mineAIStore.getComponent(e);
-                auto inputs = inputsStore.getComponent(e);
+                auto mine_ai = mine_ai_store.get_component(e);
+                auto inputs = inputs_store.get_component(e);
 
                 // Reset inputs
                 inputs->up = false;
@@ -866,35 +850,35 @@ class MineAISystem : public System
                 inputs->selected = 0;
                 inputs->use = false;
 
-                if(mineAI->aggressive == false)
+                if(mine_ai->aggressive == false)
                 {
                     continue;
                 }
 
-                float closestDx = 0.0;
-                float closestDy = 0.0;
-                float closestDist = 1000000;
+                float closest_dx = 0.0;
+                float closest_dy = 0.0;
+                float closest_dist = 1000000;
 
-                auto transform1 = transformStore.getComponent(e);
+                auto transform1 = transform_store.get_component(e);
                 for(auto s : ships)
                 {
-                    auto transform2 = transformStore.getComponent(s);
+                    auto transform2 = transform_store.get_component(s);
 
                     float dx = transform2->x - transform1->x;
                     float dy = transform2->y - transform1->y;
 
                     float dist = sqrt(dx*dx + dy*dy);
-                    if(dist < closestDist)
+                    if(dist < closest_dist)
                     {
-                        closestDx = dx;
-                        closestDy = dy;
-                        closestDist = dist;
+                        closest_dx = dx;
+                        closest_dy = dy;
+                        closest_dist = dist;
                     }
                 }
 
-                if(closestDist <= 200.0)
+                if(closest_dist <= 200.0)
                 {
-                    if(closestDx > 0.0)
+                    if(closest_dx > 0.0)
                     {
                         inputs->right = true;
                     }
@@ -903,7 +887,7 @@ class MineAISystem : public System
                         inputs->left = true;
                     }
 
-                    if(closestDy < 0.0)
+                    if(closest_dy < 0.0)
                     {
                         inputs->down = true;
                     }
@@ -916,6 +900,5 @@ class MineAISystem : public System
         }
     private:
 };
-
 
 #endif

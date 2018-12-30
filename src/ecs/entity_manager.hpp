@@ -1,25 +1,21 @@
 #ifndef ENTITY_MANAGER_HPP
 #define ENTITY_MANAGER_HPP
 
-
 #include <cassert>
 #include <iostream>
 #include <set>
 #include <unordered_map>
 
-
 #define MAX_ENTITIES 1000000
-
 
 typedef uint32_t Entity;
 typedef uint32_t Component;
-const Entity invalidEntity = 0;
-
+const Entity invalid_entity = 0;
 
 class EntityManager
 {
     public:
-        EntityManager() : allEntities({}), entities({})
+        EntityManager() : all_entities({}), entities({})
         {
         }
         void add(std::set<Component> components)
@@ -27,11 +23,11 @@ class EntityManager
             entities[next] = components;
             next++;
         }
-        void removeEntity(const Entity e)
+        void remove_entity(const Entity e)
         {
-            assert(e != invalidEntity);
+            assert(e != invalid_entity);
 
-            allEntities.erase(e);
+            all_entities.erase(e);
             entities.erase(e);
         }
         void print()
@@ -47,19 +43,18 @@ class EntityManager
                 std::cout << std::endl;
             }
         }
-        Entity getEntity()
+        Entity get_entity()
         {
             if(next >= MAX_ENTITIES)
             {
-                return invalidEntity;
+                return invalid_entity;
             }
             return next++;
         }
         Entity next = 1;
-        std::set<Entity> allEntities;
+        std::set<Entity> all_entities;
         std::unordered_map<Entity, std::set<Component>> entities;
     private:
 };
-
 
 #endif

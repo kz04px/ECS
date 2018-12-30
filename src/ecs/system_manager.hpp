@@ -1,24 +1,21 @@
 #ifndef SYSTEM_MANAGER_HPP
 #define SYSTEM_MANAGER_HPP
 
-
 #include <cassert>
 #include <iostream>
 #include <vector>
 #include <memory>
-
 
 typedef uint32_t Entity;
 typedef uint32_t Component;
 class SystemManager;
 class Manager;
 
-
 class System
 {
     public:
         virtual void update(const float dt) = 0;
-        void removeEntity(const Entity e)
+        void remove_entity(const Entity e)
         {
             entities.erase(e);
         }
@@ -26,7 +23,6 @@ class System
         std::set<Component> required;
         Manager *manager;
 };
-
 
 class SystemManager
 {
@@ -63,14 +59,14 @@ class SystemManager
                 std::cout << std::endl;
             }
         }
-        void removeEntity(const Entity e)
+        void remove_entity(const Entity e)
         {
             for(auto &system : systems)
             {
-                system->removeEntity(e);
+                system->remove_entity(e);
             }
         }
-        void updateEntity(const Entity e, const std::set<Component> c)
+        void update_entity(const Entity e, const std::set<Component> c)
         {
             for(auto &s : systems)
             {
@@ -90,9 +86,9 @@ class SystemManager
             }
         }
         template<typename T>
-        T* getSystem()
+        T* get_system()
         {
-            return NULL;
+            return nullptr;
             /*
             for(auto s : systems)
             {
@@ -104,7 +100,7 @@ class SystemManager
             */
         }
         template<typename T>
-        void addSystem(T* t)
+        void add_system(T* t)
         {
             static_assert(std::is_base_of<System, T>::value, "System must derive from System base class");
             systems.push_back(t);
@@ -112,6 +108,5 @@ class SystemManager
     private:
         std::vector<System*> systems;
 };
-
 
 #endif
