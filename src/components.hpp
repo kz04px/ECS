@@ -326,6 +326,8 @@ const Component Explode::id = 13;
 const Component Fade::id = 14;
 const Component Player::id = 15;
 const Component AI::id = 16;
+const Component MineAI::id = 17; 
+const Component Ship::id = 18; 
 
 
 #endif
