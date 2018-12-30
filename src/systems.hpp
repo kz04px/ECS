@@ -539,7 +539,7 @@ class AsteroidSystem : public System
                             manager->add_entity_component<Size>(new_entity, Size(size->radius/2));
                             manager->add_entity_component<Render>(new_entity, Render(colour, colour, colour));
                             manager->add_entity_component<Collision>(new_entity, Collision(3, false));
-                            manager->add_entity_component<Health>(new_entity, Health(health->startHealth - 1));
+                            manager->add_entity_component<Health>(new_entity, Health(health->start_health - 1));
                             manager->add_entity_component<Asteroid>(new_entity, Asteroid());
                         }
                     }
